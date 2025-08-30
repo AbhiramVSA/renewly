@@ -1,11 +1,6 @@
-<<<<<<< HEAD
-=======
-# Subscription Management API
->>>>>>> d17bb370013cd6b6610ed18b93dba2b3f42b849f
+# Renewly
 
-# SubTrack
-
-SubTrack is a Node.js and Express-based REST API for managing user subscriptions. It provides endpoints for user authentication, subscription creation, updates, cancellations, and tracking upcoming renewals. Built with MongoDB, SubTrack is designed for extensibility, security, and production readiness.
+Renewly is a Node.js and Express-based REST API for managing user subscriptions. It provides endpoints for user authentication, subscription creation, updates, cancellations, and tracking upcoming renewals. Built with MongoDB, SubTrack is designed for extensibility, security, and production readiness.
 
 ## Features
 

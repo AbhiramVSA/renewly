@@ -1,67 +1,84 @@
-# Subscription Management App
 
-A robust, open-source Node.js application for managing user subscriptions. Built with Express and MongoDB, this app provides authentication, subscription management, and user administration features.
+# SubTrack
+
+SubTrack is a Node.js and Express-based REST API for managing user subscriptions. It provides endpoints for user authentication, subscription creation, updates, cancellations, and tracking upcoming renewals. Built with MongoDB, SubTrack is designed for extensibility, security, and production readiness.
 
 ## Features
-- User authentication (JWT-based)
-- Subscription CRUD operations
-- Role-based access control
-- Error handling middleware
-- MongoDB integration
-- RESTful API structure
+
+- User authentication and authorization (JWT-based)
+- Create, update, and delete subscriptions
+- Track upcoming renewals
+- Secure middleware integration (Arcjet, custom auth)
+- Modular route and controller structure
 - Environment-based configuration
-- Open source compliant
+- Error handling middleware
+- Open source friendly
+
+## Tech Stack
+
+- **Node.js** (ES Modules)
+- **Express.js**
+- **MongoDB** (Mongoose ODM)
+- **JWT Authentication**
+- **Arcjet** (security middleware)
+- **dotenv** (environment management)
 
 ## Getting Started
 
 ### Prerequisites
-- [Node.js](https://nodejs.org/) (v16+ recommended)
-- [MongoDB](https://www.mongodb.com/)
+
+- Node.js v18+
+- MongoDB Atlas or local MongoDB instance
 
 ### Installation
 
-1. **Clone the repository:**
-   ```sh
-   git clone https://github.com/AbhiramVSA/subscription-management-app.git
-   cd subscription-management-app
-   ```
-2. **Install dependencies:**
-   ```sh
-   npm install
-   ```
-3. **Configure environment variables:**
-   - Copy `config/env.js.example` to `config/env.js` and update values as needed.
-   - Example:
-     ```js
-     module.exports = {
-       MONGODB_URI: 'mongodb://localhost:27017/subscriptiondb',
-       JWT_SECRET: 'your_jwt_secret',
-       PORT: 3000
-     };
-     ```
-4. **Start the application:**
-   ```sh
-   npm start
-   ```
+```bash
+git clone https://github.com/yourusername/subtrack.git
+cd subtrack
+npm install
+```
+
+### Environment Setup
+
+Create a `.env.development.local` file in the root directory:
+
+```
+PORT=8085
+MONGODB_URI=your_mongodb_connection_string
+JWT_SECRET=your_jwt_secret
+ARCJET_KEY=your_arcjet_key
+```
+
+### Running the App
+
+```bash
+npm run dev
+```
+
+The API will be available at `http://localhost:8085`.
 
 ## API Endpoints
 
 ### Auth
-- `POST /api/auth/register` — Register a new user
-- `POST /api/auth/login` — Login and receive JWT
 
-### Users
-- `GET /api/users` — List all users (admin only)
-- `GET /api/users/:id` — Get user by ID
-- `PUT /api/users/:id` — Update user
-- `DELETE /api/users/:id` — Delete user
+- `POST /api/v1/auth/sign-in` — User login
+- `POST /api/v1/auth/sign-up` — User registration
 
-### Subscriptions
-- `GET /api/subscriptions` — List subscriptions
-- `POST /api/subscriptions` — Create subscription
-- `GET /api/subscriptions/:id` — Get subscription by ID
-- `PUT /api/subscriptions/:id` — Update subscription
-- `DELETE /api/subscriptions/:id` — Delete subscription
+### User
+
+- `GET /api/v1/user/users` — Get all users
+- `GET /api/v1/user/:id` — Get user by ID (protected)
+
+### Subscription
+
+- `GET /api/v1/subscription/` — List all subscriptions
+- `GET /api/v1/subscription/:id` — Get subscription details
+- `POST /api/v1/subscription/` — Create a subscription (protected)
+- `PUT /api/v1/subscription/:id` — Update a subscription
+- `DELETE /api/v1/subscription/:id` — Delete a subscription
+- `GET /api/v1/subscription/user/:id` — Get subscriptions for a user (protected)
+- `PUT /api/v1/subscription/:id/cancel` — Cancel a subscription
+- `GET /api/v1/subscription/upcoming-renewals` — Get upcoming renewals
 
 ## Project Structure
 ```
@@ -75,23 +92,27 @@ routes/
 ```
 
 ## Contributing
-Contributions are welcome! Please open issues and submit pull requests via GitHub. All contributions must comply with the [Contributor Covenant Code of Conduct](https://www.contributor-covenant.org/).
+
+Contributions are welcome! Please open issues or submit pull requests for improvements and bug fixes.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/your-feature`)
+3. Commit your changes (`git commit -am 'Add new feature'`)
+4. Push to the branch (`git push origin feature/your-feature`)
+5. Open a pull request
 
 ## License
+
 This project is licensed under the [MIT License](LICENSE).
 
 ## Security
-If you discover a security vulnerability, please report it via GitHub Issues or contact the maintainers directly.
+
+If you discover a security vulnerability, please open an issue or contact the maintainers directly.
 
 ## Maintainers
-- [AbhiramVSA](https://github.com/AbhiramVSA)
 
-## Acknowledgements
-- Express.js
-- MongoDB
-- JWT
-- Open Source Community
+- [AbhiramVSA](https://github.com/AbhiramVSA)
 
 ---
 
-For more information, see the documentation in the repository or contact the maintainers.
+**Topics:** subscription management, express api, nodejs backend, mongodb, rest api, authentication, middleware, user management, payments, open source

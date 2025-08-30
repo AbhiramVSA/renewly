@@ -1,4 +1,4 @@
-# Subscription Management App
+# Subscription Management API
 
 A robust, open-source Node.js application for managing user subscriptions. Built with Express and MongoDB, this app provides authentication, subscription management, and user administration features.
 

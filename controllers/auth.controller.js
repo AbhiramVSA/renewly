@@ -52,26 +52,34 @@ export const signIn = async (req, res, next) => {
         if (!user) {
             const error = new Error('User does not exist');
             error.statusCode = 404;
-            throw error;
+            return next(error);
         }
 
         const isPasswordValid = await bcrypt.compare(password, user.password);
 
         if (!isPasswordValid) {
             const error = new Error('Invalid Password');
-            error.statusCode = 404;
-            throw error;
+            error.statusCode = 401;
+            return next(error);
         }
 
         const token = jwt.sign( {userId: user._id}, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
 
-        res.status(200).json
-
+        res.status(200).json({
+            success: true,
+            message: 'Sign in successful',
+            data: {
+                token,
+                user: {
+                    _id: user._id,
+                    name: user.name,
+                    email: user.email
+                }
+            }
+        });
     } catch(error) {
-
-
+        next(error);
     }
-
 }
 
 export const signOut = async (req, res, next) => {

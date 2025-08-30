@@ -18,7 +18,7 @@ lib-cov
 coverage
 
 .nyc_output
-
+.idea
 .grunt
 
 bower_components

@@ -1,4 +1,4 @@
-import User from "./models/User";
+import User from "../models/user.model.js";
 
 export const getUsers = async (req, res, next) => {
     try {
@@ -18,7 +18,7 @@ export const getUser = async (req, res, next) => {
         if (!user) {
             const error = new Error('User does not exist');
             error.status = 404;
-            throw error;
+            throw next(error);
         }
         res.status(200).json({success: true, data: user});
 

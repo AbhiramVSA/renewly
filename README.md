@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+# Subscription Management API
+>>>>>>> d17bb370013cd6b6610ed18b93dba2b3f42b849f
 
 # SubTrack
 

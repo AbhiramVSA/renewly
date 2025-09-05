@@ -20,8 +20,31 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
         minLength: 8,
+    },
+    role: {
+        type: String,
+        enum: ['SUPER_ADMIN', 'ADMIN', 'MANAGER', 'USER', 'READ_ONLY', 'SERVICE'],
+        default: 'USER',
+        index: true
+    },
+    isActive: {
+        type: Boolean,
+        default: true,
+        index: true
     }
 }, { timestamps: true });
+
+// Role helper methods
+userSchema.methods.hasRole = function(required) {
+    if (!required) return false;
+    return Array.isArray(required)
+        ? required.includes(this.role)
+        : this.role === required;
+};
+
+userSchema.methods.isOneOf = function(roles) {
+    return Array.isArray(roles) && roles.includes(this.role);
+};
 
 const User = mongoose.model('User', userSchema);
 

@@ -3,6 +3,7 @@ import User from "../models/user.model.js";
 import bcrypt from 'bcryptjs';
 import {JWT_EXPIRES_IN, JWT_SECRET} from "../config/env.js";
 import jwt from 'jsonwebtoken';
+import { logAudit } from '../utils/auditLogger.js';
 
 export const signUp = async (req, res, next) => {
     const session = await mongoose.startSession();
@@ -64,6 +65,16 @@ export const signIn = async (req, res, next) => {
         }
 
         const token = jwt.sign( {userId: user._id}, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
+
+        // Audit login
+        logAudit({
+            actorId: user._id,
+            action: 'LOGIN',
+            targetType: 'USER',
+            targetId: user._id,
+            metadata: { email: user.email },
+            req
+        });
 
         res.status(200).json({
             success: true,

@@ -1,4 +1,5 @@
 import Subscription from '../models/subscription.model.js';
+import { logAudit } from '../utils/auditLogger.js';
 
 
 export const createSubscription = async (req, res, next) => {
@@ -9,7 +10,15 @@ export const createSubscription = async (req, res, next) => {
             user: req.user._id,
 
         });
-
+        // Audit create
+        logAudit({
+            actorId: req.user._id,
+            action: 'CREATE_SUBSCRIPTION',
+            targetType: 'SUBSCRIPTION',
+            targetId: subscription._id,
+            metadata: { name: subscription.name, price: subscription.price },
+            req
+        });
     res.status(201).json({ success: true, data: subscription});
     } catch(error) {
         next(error);
@@ -34,4 +43,104 @@ export const getUserSubscriptions = async (req, res, next) => {
     }
 }
 
-export default { createSubscription, getUserSubscriptions }
+export const getAllSubscriptions = async (req, res, next) => {
+    try {
+        const filters = {};
+        // Optional basic filtering by query params (e.g., ?user=ID&status=active)
+        if (req.query.user) filters.user = req.query.user;
+        if (req.query.status) filters.status = req.query.status;
+        if (req.query.frequency) filters.frequency = req.query.frequency;
+
+        const subscriptions = await Subscription.find(filters)
+            .populate('user', 'name email')
+            .sort({ createdAt: -1 });
+
+        res.status(200).json({ success: true, count: subscriptions.length, data: subscriptions });
+    } catch (error) {
+        next(error);
+    }
+}
+export const updateSubscription = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const subscription = await Subscription.findById(id);
+        if (!subscription) {
+            const error = new Error('Subscription not found');
+            error.status = 404;
+            throw error;
+        }
+        // Ownership or elevated role check (basic ownership for now)
+        if (subscription.user.toString() !== req.user._id.toString() && !['SUPER_ADMIN','ADMIN','MANAGER'].includes(req.user.role)) {
+            const error = new Error('Forbidden');
+            error.status = 403;
+            throw error;
+        }
+        Object.assign(subscription, req.body);
+        await subscription.save();
+        logAudit({
+            actorId: req.user._id,
+            action: 'UPDATE_SUBSCRIPTION',
+            targetType: 'SUBSCRIPTION',
+            targetId: subscription._id,
+            metadata: { updatedFields: Object.keys(req.body) },
+            req
+        });
+        res.status(200).json({ success: true, data: subscription });
+    } catch (error) { next(error); }
+}
+
+export const deleteSubscription = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const subscription = await Subscription.findById(id);
+        if (!subscription) {
+            const error = new Error('Subscription not found');
+            error.status = 404;
+            throw error;
+        }
+        if (subscription.user.toString() !== req.user._id.toString() && !['SUPER_ADMIN','ADMIN'].includes(req.user.role)) {
+            const error = new Error('Forbidden');
+            error.status = 403;
+            throw error;
+        }
+        await subscription.deleteOne();
+        logAudit({
+            actorId: req.user._id,
+            action: 'DELETE_SUBSCRIPTION',
+            targetType: 'SUBSCRIPTION',
+            targetId: subscription._id,
+            metadata: {},
+            req
+        });
+        res.status(200).json({ success: true, message: 'Subscription deleted'});
+    } catch (error) { next(error); }
+}
+
+export const cancelSubscription = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const subscription = await Subscription.findById(id);
+        if (!subscription) {
+            const error = new Error('Subscription not found');
+            error.status = 404;
+            throw error;
+        }
+        if (subscription.user.toString() !== req.user._id.toString() && !['SUPER_ADMIN','ADMIN','MANAGER'].includes(req.user.role)) {
+            const error = new Error('Forbidden');
+            error.status = 403;
+            throw error;
+        }
+        subscription.status = 'cancelled';
+        await subscription.save();
+        logAudit({
+            actorId: req.user._id,
+            action: 'CANCEL_SUBSCRIPTION',
+            targetType: 'SUBSCRIPTION',
+            targetId: subscription._id,
+            metadata: {},
+            req
+        });
+        res.status(200).json({ success: true, data: subscription });
+    } catch (error) { next(error); }
+}
+export default { createSubscription, getUserSubscriptions, getAllSubscriptions, updateSubscription, deleteSubscription, cancelSubscription }

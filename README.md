@@ -48,7 +48,9 @@ Create a `.env.development.local` file in the root directory:
 PORT=8085
 MONGODB_URI=your_mongodb_connection_string
 JWT_SECRET=your_jwt_secret
-JWT_EXPIRES_IN=1d
+JWT_EXPIRES_IN=15m
+JWT_REFRESH_SECRET=your_refresh_secret
+JWT_REFRESH_EXPIRES_IN=604800000
 ARCJET_KEY=your_arcjet_key
 ```
 
@@ -66,6 +68,9 @@ The API will be available at `http://localhost:8085`.
 
 - `POST /api/v1/auth/sign-in` — User login
 - `POST /api/v1/auth/sign-up` — User registration
+- `POST /api/v1/auth/refresh` — Refresh access token
+- `POST /api/v1/auth/sign-out` — Sign out (invalidate refresh token)
+- `POST /api/v1/auth/sign-out-all` — Sign out from all devices (requires auth)
 
 ### User
 
@@ -109,6 +114,63 @@ routes/
 	user.routes.js
 	subscription.routes.js
 ```
+
+## Authentication & Refresh Tokens
+
+SubTrack implements JWT-based authentication with refresh token support for enhanced security and user experience.
+
+### Authentication Flow
+
+1. **Sign Up/Sign In**: Returns both access token (short-lived) and refresh token (long-lived)
+2. **API Requests**: Use access token in Authorization header
+3. **Token Refresh**: When access token expires, use refresh token to get new tokens
+4. **Sign Out**: Invalidate specific refresh token or all tokens
+
+### Token Configuration
+
+Environment variables for token management:
+```env
+JWT_SECRET=your_jwt_secret
+JWT_EXPIRES_IN=15m                    # Access token expiry (15 minutes)
+JWT_REFRESH_SECRET=your_refresh_secret
+JWT_REFRESH_EXPIRES_IN=604800000      # Refresh token expiry (7 days in ms)
+```
+
+### Example: Refresh Token Usage
+
+```bash
+# Get new access token using refresh token
+POST /api/v1/auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "your_refresh_token_here"
+}
+```
+
+Response:
+```json
+{
+  "success": true,
+  "message": "Token refreshed successfully",
+  "data": {
+    "token": "new_access_token",
+    "refreshToken": "new_refresh_token",
+    "user": {
+      "_id": "user_id",
+      "name": "User Name",
+      "email": "user@example.com",
+      "role": "USER"
+    }
+  }
+}
+```
+
+### Token Management Endpoints
+
+- `POST /auth/refresh` - Refresh access token
+- `POST /auth/sign-out` - Sign out (invalidate refresh token)
+- `POST /auth/sign-out-all` - Sign out from all devices (requires auth)
 
 ## RBAC Overview
 

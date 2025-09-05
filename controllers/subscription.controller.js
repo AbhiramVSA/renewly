@@ -60,6 +60,48 @@ export const getAllSubscriptions = async (req, res, next) => {
         next(error);
     }
 }
+
+export const getSubscription = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const subscription = await Subscription.findById(id).populate('user', 'name email');
+        if (!subscription) {
+            const error = new Error('Subscription not found');
+            error.status = 404;
+            throw error;
+        }
+        // Allow owner or elevated roles
+        const isOwner = subscription.user && (subscription.user._id?.toString?.() || subscription.user.toString?.()) === req.user?._id?.toString?.();
+        const elevated = ['SUPER_ADMIN','ADMIN','MANAGER'].includes(req.user?.role);
+        if (!isOwner && !elevated) {
+            const error = new Error('Forbidden');
+            error.status = 403;
+            throw error;
+        }
+
+        res.status(200).json({ success: true, data: subscription });
+    } catch (error) { next(error); }
+}
+
+export const getUpcomingRenewals = async (req, res, next) => {
+    try {
+        const now = new Date();
+        const futureDate = new Date();
+        futureDate.setDate(now.getDate() + 30); // next 30 days
+
+        let query = { renewalDate: { $gte: now, $lte: futureDate } };
+
+        // If not elevated role, only show user's own
+        if (!['SUPER_ADMIN', 'ADMIN', 'MANAGER'].includes(req.user.role)) {
+            query.user = req.user._id;
+        }
+
+        const subscriptions = await Subscription.find(query).populate('user', 'name email').sort({ renewalDate: 1 });
+
+        res.status(200).json({ success: true, data: subscriptions });
+    } catch (error) { next(error); }
+}
+
 export const updateSubscription = async (req, res, next) => {
     try {
         const { id } = req.params;
@@ -143,4 +185,4 @@ export const cancelSubscription = async (req, res, next) => {
         res.status(200).json({ success: true, data: subscription });
     } catch (error) { next(error); }
 }
-export default { createSubscription, getUserSubscriptions, getAllSubscriptions, updateSubscription, deleteSubscription, cancelSubscription }
+export default { createSubscription, getUserSubscriptions, getAllSubscriptions, getSubscription, updateSubscription, deleteSubscription, cancelSubscription, getUpcomingRenewals }

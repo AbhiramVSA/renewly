@@ -5,11 +5,75 @@ import { logAudit } from '../utils/auditLogger.js';
 export const createSubscription = async (req, res, next) => {
     
     try {
-        const subscription = await Subscription.create( {
-            ...req.body,
-            user: req.user._id,
+        // Normalize input to reduce validation errors
+        // Allowed enums (mirror schema)
+        const CURRENCIES = new Set(['USD','EUR','INR']);
+        const FREQUENCIES = new Set(['daily','weekly','monthly','yearly']);
+        const CATEGORIES = new Set(['sports','news','entertainment','technology','education','lifestyle','finance','political','other']);
 
-        });
+        const rawName = req.body?.name?.trim();
+        const rawPrice = typeof req.body?.price === 'string' ? Number(req.body.price) : req.body?.price;
+        const rawCurrency = req.body?.currency?.toUpperCase();
+        const rawFrequency = req.body?.frequency?.toLowerCase();
+        const rawCategory = req.body?.category?.toLowerCase();
+        const rawPaymentMethod = req.body?.paymentMethod?.trim();
+        const rawStartDate = req.body?.startDate ? new Date(req.body.startDate) : undefined;
+        const rawRenewalDate = req.body?.renewalDate ? new Date(req.body.renewalDate) : undefined;
+
+        // Basic required checks to provide clearer messages than generic validation
+        if (!rawName) {
+            const err = new Error('Subscription name is required');
+            err.statusCode = 400;
+            throw err;
+        }
+        if (rawPrice === undefined || Number.isNaN(rawPrice)) {
+            const err = new Error('Valid price is required');
+            err.statusCode = 400;
+            throw err;
+        }
+        if (!rawFrequency) {
+            const err = new Error('Frequency is required');
+            err.statusCode = 400;
+            throw err;
+        }
+        if (!rawCategory) {
+            const err = new Error('Category is required');
+            err.statusCode = 400;
+            throw err;
+        }
+        if (!rawPaymentMethod) {
+            const err = new Error('Payment method is required');
+            err.statusCode = 400;
+            throw err;
+        }
+        if (!rawStartDate) {
+            const err = new Error('Start date is required');
+            err.statusCode = 400;
+            throw err;
+        }
+
+        // Coerce enums to safe values
+        const currency = CURRENCIES.has(rawCurrency) ? rawCurrency : 'USD';
+        const frequency = FREQUENCIES.has(rawFrequency) ? rawFrequency : 'monthly';
+        const category = CATEGORIES.has(rawCategory) ? rawCategory : 'other';
+
+        // Ensure price has max 2 decimals
+        const price = Math.round(Number(rawPrice) * 100) / 100;
+
+        const payload = {
+            name: rawName,
+            price,
+            currency,
+            frequency,
+            category,
+            paymentMethod: rawPaymentMethod,
+            startDate: rawStartDate,
+            renewalDate: rawRenewalDate,
+            status: req.body?.status?.toLowerCase(),
+            user: req.user._id,
+        };
+
+        const subscription = await Subscription.create(payload);
         // Audit create
         logAudit({
             actorId: req.user._id,
@@ -39,45 +103,9 @@ export const getUserSubscriptions = async (req, res, next) => {
             throw error;
         }
 
-        // Pagination and filters
-        const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
-        const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 20, 1), 100);
-        const skip = (page - 1) * limit;
+        const subscriptions = await Subscription.find({ user: id });
 
-        const filter = { user: id };
-        if (req.query.status) filter.status = req.query.status;
-        if (req.query.frequency) filter.frequency = req.query.frequency;
-        if (req.query.category) filter.category = req.query.category;
-        if (req.query.q) {
-            filter.name = { $regex: req.query.q, $options: 'i' };
-        }
-
-        // Basic sort support: ?sort=createdAt:desc or ?sort=-createdAt
-        const sortParam = (req.query.sort || '').toString();
-        let sort = { createdAt: -1 };
-        if (sortParam) {
-            if (sortParam.includes(':')) {
-                const [field, dir] = sortParam.split(':');
-                sort = { [field]: dir?.toLowerCase() === 'asc' ? 1 : -1 };
-            } else if (sortParam.startsWith('-')) {
-                sort = { [sortParam.slice(1)]: -1 };
-            } else {
-                sort = { [sortParam]: 1 };
-            }
-        }
-
-        const [items, total] = await Promise.all([
-            Subscription.find(filter).sort(sort).skip(skip).limit(limit),
-            Subscription.countDocuments(filter)
-        ]);
-
-        res.status(200).json({
-            success: true,
-            data: {
-                items,
-                pagination: { page, limit, total }
-            }
-        });
+        res.status(200).json({ success: true, data: subscriptions });
 
     } catch (error) {
         next(error);
@@ -86,43 +114,17 @@ export const getUserSubscriptions = async (req, res, next) => {
 
 export const getAllSubscriptions = async (req, res, next) => {
     try {
-        // Pagination and filters for admin/manager views
-        const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
-        const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 20, 1), 100);
-        const skip = (page - 1) * limit;
-
         const filters = {};
+        // Optional basic filtering by query params (e.g., ?user=ID&status=active)
         if (req.query.user) filters.user = req.query.user;
         if (req.query.status) filters.status = req.query.status;
         if (req.query.frequency) filters.frequency = req.query.frequency;
-        if (req.query.category) filters.category = req.query.category;
-        if (req.query.q) filters.name = { $regex: req.query.q, $options: 'i' };
 
-        const sortParam = (req.query.sort || '').toString();
-        let sort = { createdAt: -1 };
-        if (sortParam) {
-            if (sortParam.includes(':')) {
-                const [field, dir] = sortParam.split(':');
-                sort = { [field]: dir?.toLowerCase() === 'asc' ? 1 : -1 };
-            } else if (sortParam.startsWith('-')) {
-                sort = { [sortParam.slice(1)]: -1 };
-            } else {
-                sort = { [sortParam]: 1 };
-            }
-        }
+        const subscriptions = await Subscription.find(filters)
+            .populate('user', 'name email')
+            .sort({ createdAt: -1 });
 
-        const [items, total] = await Promise.all([
-            Subscription.find(filters).populate('user', 'name email').sort(sort).skip(skip).limit(limit),
-            Subscription.countDocuments(filters)
-        ]);
-
-        res.status(200).json({
-            success: true,
-            data: {
-                items,
-                pagination: { page, limit, total }
-            }
-        });
+        res.status(200).json({ success: true, count: subscriptions.length, data: subscriptions });
     } catch (error) {
         next(error);
     }

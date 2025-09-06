@@ -1,0 +1,15 @@
+{
+  "watch": [
+    "src",
+    "index.html",
+    "vite.config.ts",
+    "tailwind.config.ts",
+    "tsconfig.json",
+    "tsconfig.app.json"
+  ],
+  "ext": "ts,tsx,js,jsx,css,html",
+  "ignore": ["node_modules", "dist"],
+  "exec": "npm run dev:serve",
+  "signal": "SIGTERM",
+  "restartable": "rs"
+}

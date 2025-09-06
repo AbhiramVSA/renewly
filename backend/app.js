@@ -1,5 +1,6 @@
 import express from "express";
 import cookieParser from "cookie-parser";
+import cors from "cors";
 
 // Configuration and database
 import { PORT } from './config/env.js';
@@ -16,6 +17,25 @@ import arcjetMiddleware from "./middleware/arcjet.middleware.js";
 
 // Initialize Express application
 const app = express();
+
+// CORS configuration - allow requests from frontend
+const corsOptions = {
+  origin: [
+    'http://localhost:8080',  // Frontend development server
+    'http://localhost:3000',  // Common React dev port
+    'http://localhost:5173',  // Vite default port
+  ],
+  credentials: true, // Allow cookies and auth headers
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: [
+    'Content-Type', 
+    'Authorization', 
+    'X-Requested-With',
+    'Accept'
+  ]
+};
+
+app.use(cors(corsOptions));
 
 // Body parsing middleware
 // Handles JSON payloads with reasonable size limits

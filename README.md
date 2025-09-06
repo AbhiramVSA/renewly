@@ -1,7 +1,7 @@
-# Renewly - Subscription Management API
+# SubTrack - Subscription Management API
 
 
-Renewly is a Node.js and Express-based REST API for managing user subscriptions. It provides endpoints for user authentication, subscription lifecycle (create, update, cancel, delete), RBAC‑protected administration, audit logging, and upcoming renewal tracking. Built with Express, MongoDB (Mongoose), and hardened with layered middleware (JWT auth + Arcjet security), it is designed for extensibility and production readiness.
+SubTrack is a Node.js and Express-based REST API for managing user subscriptions. It provides endpoints for user authentication, subscription lifecycle (create, update, cancel, delete), RBAC‑protected administration, audit logging, and upcoming renewal tracking. Built with Express, MongoDB (Mongoose), and hardened with layered middleware (JWT auth + Arcjet security), it is designed for extensibility and production readiness.
 
 ## Features
 
@@ -46,7 +46,7 @@ Create a `.env.development.local` file in the root directory:
 
 ```
 PORT=8085
-MONGODB_URI=your_mongodb_connection_string
+DB_URI=your_mongodb_connection_string
 JWT_SECRET=your_jwt_secret
 JWT_EXPIRES_IN=15m
 JWT_REFRESH_SECRET=your_refresh_secret
@@ -61,6 +61,8 @@ npm run dev
 ```
 
 The API will be available at `http://localhost:8085`.
+
+Note: All backend code now resides under `backend/`. A placeholder `frontend/` directory exists for a future UI.
 
 ## API Endpoints
 
@@ -80,39 +82,30 @@ The API will be available at `http://localhost:8085`.
 
 ### Subscription
 
-- `GET /api/v1/subscription/` — List all subscriptions (SUPER_ADMIN | ADMIN | MANAGER)
-- `GET /api/v1/subscription/:id` — Get subscription details (placeholder)
-- `POST /api/v1/subscription/` — Create a subscription (authenticated)
-- `PUT /api/v1/subscription/:id` — Update a subscription (owner or elevated role)
-- `DELETE /api/v1/subscription/:id` — Delete a subscription (owner or ADMIN | SUPER_ADMIN)
-- `GET /api/v1/subscription/user/:id` — Get subscriptions for a user (must match user or elevated)
-- `PUT /api/v1/subscription/:id/cancel` — Cancel a subscription (owner or elevated)
-- `GET /api/v1/subscription/upcoming-renewals` — Get upcoming renewals (placeholder)
+- `GET /api/v1/subscriptions/` — List all subscriptions (SUPER_ADMIN | ADMIN | MANAGER)
+- `GET /api/v1/subscriptions/:id` — Get subscription details (owner or elevated)
+- `POST /api/v1/subscriptions/` — Create a subscription (authenticated)
+- `PUT /api/v1/subscriptions/:id` — Update a subscription (owner or elevated)
+- `DELETE /api/v1/subscriptions/:id` — Delete a subscription (owner or ADMIN | SUPER_ADMIN)
+- `GET /api/v1/subscriptions/user/:id` — Get subscriptions for a user (must match user or elevated)
+- `PUT /api/v1/subscriptions/:id/cancel` — Cancel a subscription (owner or elevated)
+- `GET /api/v1/subscriptions/upcoming-renewals` — Get upcoming renewals
 
 ## Project Structure (Key Files)
 ```
-app.js
-config/
-constants/roles.js
-controllers/
-	auth.controller.js
-	subscription.controller.js
-	user.controller.js
-database/mongodb.js
-middleware/
-	auth.middleware.js
-	requireRoles.middleware.js
-	arcjet.middleware.js
-	error.middleware.js
-models/
-	user.model.js
-	subscription.model.js
-	auditLog.model.js
-utils/auditLogger.js
-routes/
-	auth.routes.js
-	user.routes.js
-	subscription.routes.js
+backend/
+	app.js
+	config/
+	constants/
+	controllers/
+	database/
+	middleware/
+	models/
+	routes/
+	scripts/
+	utils/
+frontend/
+	(placeholder for future UI)
 ```
 
 ## Authentication & Refresh Tokens
@@ -168,9 +161,9 @@ Response:
 
 ### Token Management Endpoints
 
-- `POST /auth/refresh` - Refresh access token
-- `POST /auth/sign-out` - Sign out (invalidate refresh token)
-- `POST /auth/sign-out-all` - Sign out from all devices (requires auth)
+- `POST /api/v1/auth/refresh` - Refresh access token
+- `POST /api/v1/auth/sign-out` - Sign out (invalidate refresh token)
+- `POST /api/v1/auth/sign-out-all` - Sign out from all devices (requires auth)
 
 ## RBAC Overview
 
@@ -241,8 +234,6 @@ Content-Type: application/json
 - Email / webhook notifications before renewals.
 - API key support for SERVICE role.
 - Rate limit tiers per role.
-
-## Contributing
 
 ## Contributing
 

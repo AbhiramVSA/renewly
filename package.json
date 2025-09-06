@@ -3,10 +3,18 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/subtrack.git"
+  },
   "scripts": {
-    "start": "node app.js",
-    "dev": "nodemon app.js",
-  "cleanup-tokens": "node scripts/cleanup-tokens.js",
+  "start": "node backend/app.js",
+  "dev": "nodemon backend/app.js",
+  "cleanup-tokens": "node backend/scripts/cleanup-tokens.js",
   "test": "NODE_ENV=test cross-env NODE_OPTIONS=--experimental-vm-modules jest --runInBand",
   "test:watch": "npm run test -- --watch"
   },

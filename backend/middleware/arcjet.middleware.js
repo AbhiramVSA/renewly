@@ -14,6 +14,7 @@ const arcjetMiddleware = async (req, res, next) => {
                 console.log('Rate limit exceeded for IP:', req.ip);
                 return res.status(429).json({ 
                     success: false,
+                    message: 'Rate limit exceeded. Please try again later.',
                     error: 'Rate limit exceeded. Please try again later.' 
                 });
             }
@@ -21,6 +22,7 @@ const arcjetMiddleware = async (req, res, next) => {
                 console.log('Bot detected for IP:', req.ip);
                 return res.status(403).json({
                     success: false,
+                    message: 'Bot detected',
                     error: 'Bot detected'
                 });
             }

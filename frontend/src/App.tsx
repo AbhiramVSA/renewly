@@ -10,6 +10,7 @@ import { SignUp } from "@/pages/auth/SignUp";
 import { Dashboard } from "@/pages/Dashboard";
 import { UserSubscriptionsPage } from "@/pages/UserSubscriptionsPage";
 import NotFound from "./pages/NotFound";
+import Landing from "@/pages/Landing";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -30,7 +31,7 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             {/* Public routes */}
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/" element={<Landing />} />
             <Route path="/auth/sign-in" element={<SignIn />} />
             <Route path="/auth/sign-up" element={<SignUp />} />
             

@@ -2,12 +2,11 @@ import mongoose from 'mongoose';
 
 import {DB_URI, NODE_ENV} from "../config/env.js";
 
-if(!DB_URI) {
-    throw new Error("MongoDB URI is missing");
-}
-
 const connectToDatabase = async () => {
     try {
+        if(!DB_URI) {
+            throw new Error("MongoDB URI is missing");
+        }
         await mongoose.connect(DB_URI);
         console.log(`Connected to Database in ${NODE_ENV} mode`);
     } catch(error) {

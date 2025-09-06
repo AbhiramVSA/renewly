@@ -20,8 +20,8 @@ export const getUser = async (req, res, next) => {
         const user = await User.findById(req.params.id).select('-password');
         if (!user) {
             const error = new Error('User does not exist');
-            error.status = 404;
-            throw next(error);
+            error.statusCode = 404;
+            throw error;
         }
         res.status(200).json({success: true, data: user});
 
@@ -37,27 +37,27 @@ export const changeUserRole = async (req, res, next) => {
 
         if (!role || !Object.values(ROLES).includes(role)) {
             const error = new Error('Invalid role');
-            error.status = 400;
+            error.statusCode = 400;
             throw error;
         }
 
         // Only SUPER_ADMIN or ADMIN can change roles (restrict ADMIN from elevating to SUPER_ADMIN)
         if (!req.user || ![ROLES.SUPER_ADMIN, ROLES.ADMIN].includes(req.user.role)) {
             const error = new Error('Forbidden');
-            error.status = 403;
+            error.statusCode = 403;
             throw error;
         }
 
         if (req.user.role === ROLES.ADMIN && role === ROLES.SUPER_ADMIN) {
             const error = new Error('ADMIN cannot assign SUPER_ADMIN');
-            error.status = 403;
+            error.statusCode = 403;
             throw error;
         }
 
         const targetUser = await User.findById(userId);
         if (!targetUser) {
             const error = new Error('Target user not found');
-            error.status = 404;
+            error.statusCode = 404;
             throw error;
         }
 
@@ -87,27 +87,27 @@ export const createUser = async (req, res, next) => {
         // Only SUPER_ADMIN or ADMIN can create users
         if (!req.user || ![ROLES.SUPER_ADMIN, ROLES.ADMIN].includes(req.user.role)) {
             const error = new Error('Forbidden');
-            error.status = 403;
+            error.statusCode = 403;
             throw error;
         }
 
         // ADMIN cannot create SUPER_ADMIN
         if (req.user.role === ROLES.ADMIN && role === ROLES.SUPER_ADMIN) {
             const error = new Error('ADMIN cannot create SUPER_ADMIN');
-            error.status = 403;
+            error.statusCode = 403;
             throw error;
         }
 
         if (!Object.values(ROLES).includes(role)) {
             const error = new Error('Invalid role');
-            error.status = 400;
+            error.statusCode = 400;
             throw error;
         }
 
         const userExists = await User.findOne({ email });
         if (userExists) {
             const error = new Error('User already exists');
-            error.status = 409;
+            error.statusCode = 409;
             throw error;
         }
 
@@ -151,14 +151,14 @@ export const updateUser = async (req, res, next) => {
 
         if (!isSelf && !isElevated) {
             const error = new Error('Forbidden');
-            error.status = 403;
+            error.statusCode = 403;
             throw error;
         }
 
         const user = await User.findById(id);
         if (!user) {
             const error = new Error('User not found');
-            error.status = 404;
+            error.statusCode = 404;
             throw error;
         }
 
@@ -201,21 +201,21 @@ export const deleteUser = async (req, res, next) => {
         // Only SUPER_ADMIN can delete users
         if (!req.user || req.user.role !== ROLES.SUPER_ADMIN) {
             const error = new Error('Forbidden: Only SUPER_ADMIN can delete users');
-            error.status = 403;
+            error.statusCode = 403;
             throw error;
         }
 
         // Cannot delete self
         if (req.user._id.toString() === id) {
             const error = new Error('Cannot delete yourself');
-            error.status = 400;
+            error.statusCode = 400;
             throw error;
         }
 
         const user = await User.findById(id);
         if (!user) {
             const error = new Error('User not found');
-            error.status = 404;
+            error.statusCode = 404;
             throw error;
         }
 

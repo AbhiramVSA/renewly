@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import User from "../models/user.model.js";
 import bcrypt from 'bcryptjs';
-import {JWT_EXPIRES_IN, JWT_SECRET, JWT_REFRESH_SECRET, JWT_REFRESH_EXPIRES_IN} from "../config/env.js";
+import {JWT_EXPIRES_IN, JWT_SECRET, JWT_REFRESH_EXPIRES_IN} from "../config/env.js";
 import jwt from 'jsonwebtoken';
 import { logAudit } from '../utils/auditLogger.js';
 import crypto from 'crypto';

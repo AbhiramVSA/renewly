@@ -67,15 +67,17 @@ app.get('/', (req, res) => {
  * Start the Express server and initialize database connection
  * Graceful startup with proper error handling
  */
-app.listen(PORT, () => {
-    console.log(`🚀 SubTrack API server started successfully`);
-    console.log(`📍 Server running on: http://localhost:${PORT}`);
-    console.log(`📚 API Documentation: http://localhost:${PORT}/`);
-    console.log(`🔒 Security: Arcjet protection enabled`);
-    
-    // Initialize database connection after server starts
-    connectToDatabase();
-});
+if (process.env.NODE_ENV !== 'test') {
+    app.listen(PORT, () => {
+        console.log(`🚀 SubTrack API server started successfully`);
+        console.log(`📍 Server running on: http://localhost:${PORT}`);
+        console.log(`📚 API Documentation: http://localhost:${PORT}/`);
+        console.log(`🔒 Security: Arcjet protection enabled`);
+
+        // Initialize database connection after server starts
+        connectToDatabase();
+    });
+}
 
 // Graceful shutdown handling
 process.on('SIGTERM', () => {

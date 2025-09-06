@@ -28,15 +28,20 @@ export const createSubscription = async (req, res, next) => {
 
 export const getUserSubscriptions = async (req, res, next) => {
     try {
-        if (req.user.id !== req.params.id) {
-            const error = new Error('You are not the owner of this account');
-            error.status = 401;
+        const { id } = req.params;
+    const isOwner = req.user?._id?.toString() === id;
+    const isElevated = ['SUPER_ADMIN', 'ADMIN', 'MANAGER'].includes(req.user?.role);
+
+        // Allow owner or elevated roles to view a user's subscriptions
+        if (!isOwner && !isElevated) {
+            const error = new Error('Forbidden');
+            error.statusCode = 403;
             throw error;
         }
 
-        const subscriptions = await Subscription.find( { user: req.params.id});
+        const subscriptions = await Subscription.find({ user: id });
 
-        res.status(200).json({ success: true, data: subscriptions});
+        res.status(200).json({ success: true, data: subscriptions });
 
     } catch (error) {
         next(error);
@@ -67,7 +72,7 @@ export const getSubscription = async (req, res, next) => {
         const subscription = await Subscription.findById(id).populate('user', 'name email');
         if (!subscription) {
             const error = new Error('Subscription not found');
-            error.status = 404;
+            error.statusCode = 404;
             throw error;
         }
         // Allow owner or elevated roles
@@ -75,7 +80,7 @@ export const getSubscription = async (req, res, next) => {
         const elevated = ['SUPER_ADMIN','ADMIN','MANAGER'].includes(req.user?.role);
         if (!isOwner && !elevated) {
             const error = new Error('Forbidden');
-            error.status = 403;
+            error.statusCode = 403;
             throw error;
         }
 
@@ -108,13 +113,13 @@ export const updateSubscription = async (req, res, next) => {
         const subscription = await Subscription.findById(id);
         if (!subscription) {
             const error = new Error('Subscription not found');
-            error.status = 404;
+            error.statusCode = 404;
             throw error;
         }
         // Ownership or elevated role check (basic ownership for now)
         if (subscription.user.toString() !== req.user._id.toString() && !['SUPER_ADMIN','ADMIN','MANAGER'].includes(req.user.role)) {
             const error = new Error('Forbidden');
-            error.status = 403;
+            error.statusCode = 403;
             throw error;
         }
         Object.assign(subscription, req.body);
@@ -137,12 +142,12 @@ export const deleteSubscription = async (req, res, next) => {
         const subscription = await Subscription.findById(id);
         if (!subscription) {
             const error = new Error('Subscription not found');
-            error.status = 404;
+            error.statusCode = 404;
             throw error;
         }
         if (subscription.user.toString() !== req.user._id.toString() && !['SUPER_ADMIN','ADMIN'].includes(req.user.role)) {
             const error = new Error('Forbidden');
-            error.status = 403;
+            error.statusCode = 403;
             throw error;
         }
         await subscription.deleteOne();
@@ -164,12 +169,12 @@ export const cancelSubscription = async (req, res, next) => {
         const subscription = await Subscription.findById(id);
         if (!subscription) {
             const error = new Error('Subscription not found');
-            error.status = 404;
+            error.statusCode = 404;
             throw error;
         }
         if (subscription.user.toString() !== req.user._id.toString() && !['SUPER_ADMIN','ADMIN','MANAGER'].includes(req.user.role)) {
             const error = new Error('Forbidden');
-            error.status = 403;
+            error.statusCode = 403;
             throw error;
         }
         subscription.status = 'cancelled';

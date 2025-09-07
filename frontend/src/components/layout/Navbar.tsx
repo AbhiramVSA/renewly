@@ -29,10 +29,7 @@ export const Navbar = () => {
   const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: BarChart3 },
     { name: 'Subscriptions', href: '/subscriptions', icon: CreditCard },
-    ...(user && canManageUsers(user.role) 
-      ? [{ name: 'Users', href: '/admin/users', icon: Users }] 
-      : []
-    ),
+    { name: 'Profile', href: '/profile', icon: User },
   ];
 
   const isActivePath = (path: string) => {

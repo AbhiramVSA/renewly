@@ -235,3 +235,71 @@ export const deleteUser = async (req, res, next) => {
         next(error);
     }
 }
+
+// Change password for current user (or by admin for a target user when currentPassword provided)
+export const changePassword = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const { currentPassword, newPassword } = req.body || {};
+
+        if (!newPassword) {
+            const error = new Error('New password is required');
+            error.statusCode = 400;
+            throw error;
+        }
+
+        if (String(req.user._id) !== String(id) && ![ROLES.SUPER_ADMIN, ROLES.ADMIN].includes(req.user.role)) {
+            const error = new Error('Forbidden');
+            error.statusCode = 403;
+            throw error;
+        }
+
+        const user = await User.findById(id);
+        if (!user) {
+            const error = new Error('User not found');
+            error.statusCode = 404;
+            throw error;
+        }
+
+        // If self-changing or non-elevated, require current password verification
+        const isSelf = String(req.user._id) === String(id);
+        const isElevated = [ROLES.SUPER_ADMIN, ROLES.ADMIN].includes(req.user.role);
+        if (isSelf || !isElevated) {
+            if (!currentPassword) {
+                const error = new Error('Current password is required');
+                error.statusCode = 400;
+                throw error;
+            }
+            const isMatch = await bcrypt.compare(currentPassword, user.password);
+            if (!isMatch) {
+                const error = new Error('Current password is incorrect');
+                error.statusCode = 400;
+                throw error;
+            }
+        }
+
+        if (String(newPassword).length < 8) {
+            const error = new Error('New password must be at least 8 characters long');
+            error.statusCode = 400;
+            throw error;
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(newPassword, salt);
+        user.refreshTokens = []; // invalidate all sessions
+        await user.save();
+
+        logAudit({
+            actorId: req.user._id,
+            action: 'CHANGE_PASSWORD',
+            targetType: 'USER',
+            targetId: user._id,
+            metadata: {},
+            req
+        });
+
+        res.status(200).json({ success: true, message: 'Password updated successfully' });
+    } catch (error) {
+        next(error);
+    }
+};

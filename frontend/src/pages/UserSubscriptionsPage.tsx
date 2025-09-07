@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { useUserSubscriptions, useCreateSubscription, useUpdateSubscription, useCancelSubscription, useDeleteSubscription } from '@/hooks/subscription.hooks';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -14,7 +14,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Plus, Edit, Trash2, Ban, ArrowLeft, Home as HomeIcon, Wallet, TrendingUp } from 'lucide-react';
+import { Plus, Edit, Trash2, Ban, Home as HomeIcon, Wallet, TrendingUp } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import type { SubscriptionFilters, SubscriptionStatus, SubscriptionFrequency } from '@/types';
 import { toast } from '@/hooks/use-toast';
@@ -267,11 +267,6 @@ export const UserSubscriptionsPage: React.FC = () => {
       )}
       <motion.div className="flex justify-between items-center" variants={item}>
         <div className="flex items-center gap-3">
-          <Link to="/dashboard">
-            <Button variant="ghost" className="hover:translate-x-[-1px] transition-transform text-red-600 hover:text-red-700">
-              <ArrowLeft className="mr-2 h-4 w-4" /> Dashboard
-            </Button>
-          </Link>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-red-500 to-red-700 bg-clip-text text-transparent">My Subscriptions</h1>
         </div>
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>

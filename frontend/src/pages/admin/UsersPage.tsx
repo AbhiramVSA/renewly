@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Layout } from '@/components/layout/Layout';
 import { useUsers, useDeleteUser, useUpdateUserRole } from '@/hooks/user.hooks';
 import { AdminOnly, SuperAdminOnly } from '@/components/auth/RoleGuard';
 import { RoleBadge } from '@/components/ui/role-badge';
@@ -70,6 +71,7 @@ export const UsersPage: React.FC = () => {
   }
 
   return (
+    <Layout>
     <AdminOnly fallback={
       <div className="p-6">
         <Card>
@@ -222,5 +224,6 @@ export const UsersPage: React.FC = () => {
         </Card>
       </div>
     </AdminOnly>
+    </Layout>
   );
 };

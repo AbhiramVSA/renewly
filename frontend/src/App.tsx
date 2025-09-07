@@ -9,8 +9,11 @@ import { SignIn } from "@/pages/auth/SignIn";
 import { SignUp } from "@/pages/auth/SignUp";
 import { Dashboard } from "@/pages/Dashboard";
 import { UserSubscriptionsPage } from "@/pages/UserSubscriptionsPage";
+import Profile from "@/pages/Profile";
+import Settings from "@/pages/Settings";
 import NotFound from "./pages/NotFound";
 import Landing from "@/pages/Landing";
+import { UsersPage } from "@/pages/admin/UsersPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -57,6 +60,30 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <UserSubscriptionsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/users"
+              element={
+                <ProtectedRoute requiredRole={"ADMIN"}>
+                  <UsersPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route 
+              path="/profile" 
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              }
+            />
+            <Route 
+              path="/settings" 
+              element={
+                <ProtectedRoute>
+                  <Settings />
                 </ProtectedRoute>
               }
             />

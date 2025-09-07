@@ -9,7 +9,7 @@
  */
 
 import { Router } from 'express';
-import { getUsers, getUser, changeUserRole, createUser, updateUser, deleteUser } from "../controllers/user.controller.js";
+import { getUsers, getUser, changeUserRole, createUser, updateUser, deleteUser, changePassword } from "../controllers/user.controller.js";
 import authorize from "../middleware/auth.middleware.js";
 import { requireRoles } from "../middleware/requireRoles.middleware.js";
 import { ROLES } from "../constants/roles.js";
@@ -56,6 +56,12 @@ userRouter.post('/', authorize, requireRoles(ROLES.SUPER_ADMIN, ROLES.ADMIN), cr
  * Includes audit logging for profile changes
  */
 userRouter.put('/:id', authorize, updateUser);
+
+/**
+ * PATCH /:id/password - Change user password
+ * Access: Authenticated users (self with current password) or ADMIN/SUPER_ADMIN
+ */
+userRouter.patch('/:id/password', authorize, changePassword);
 
 /**
  * DELETE /:id - Delete user account

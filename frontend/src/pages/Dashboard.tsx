@@ -65,8 +65,8 @@ const StatCard = ({
           <p className="text-xs text-muted-foreground">{description}</p>
           {trend && (
             <div className="flex items-center pt-1">
-              <TrendingUp className="h-3 w-3 text-success mr-1" />
-              <span className="text-xs text-success">{trend}</span>
+              <TrendingUp className="h-3 w-3 text-red-500 mr-1" />
+              <span className="text-xs text-red-500">{trend}</span>
             </div>
           )}
         </>
@@ -109,7 +109,7 @@ export const Dashboard = () => {
               Here's an overview of your subscription management.
             </p>
           </div>
-          <Button asChild className="bg-gradient-primary hover:opacity-90">
+          <Button asChild className="bg-red-500 hover:bg-red-600 text-white">
             <Link to="/subscriptions/new">
               <Plus className="mr-2 h-4 w-4" />
               Add Subscription
@@ -155,14 +155,14 @@ export const Dashboard = () => {
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
               <CardTitle className="flex items-center gap-2">
-                <AlertCircle className="h-5 w-5 text-warning" />
+                <AlertCircle className="h-5 w-5 text-red-500" />
                 Upcoming Renewals
               </CardTitle>
               <CardDescription>
                 Subscriptions renewing in the next 30 days
               </CardDescription>
             </div>
-            <Button variant="outline" asChild>
+            <Button variant="outline" asChild className="border-red-300 text-red-600 hover:bg-red-50">
               <Link to="/subscriptions?filter=upcoming">
                 View All
                 <ArrowRight className="ml-2 h-4 w-4" />
@@ -193,8 +193,8 @@ export const Dashboard = () => {
                       className="flex items-center justify-between p-4 rounded-lg border hover:bg-muted/50 transition-colors"
                     >
                       <div className="flex items-center space-x-4">
-                        <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                          <CreditCard className="h-6 w-6 text-primary" />
+                        <div className="h-12 w-12 rounded-lg bg-red-500/10 flex items-center justify-center">
+                          <CreditCard className="h-6 w-6 text-red-500" />
                         </div>
                         <div>
                           <p className="font-medium">{subscription.name}</p>
@@ -234,8 +234,8 @@ export const Dashboard = () => {
           <Card className="hover-lift interactive">
             <Link to="/subscriptions" className="block p-6">
               <div className="flex items-center space-x-4">
-                <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                  <CreditCard className="h-6 w-6 text-primary" />
+                <div className="h-12 w-12 rounded-lg bg-red-500/10 flex items-center justify-center">
+                  <CreditCard className="h-6 w-6 text-red-500" />
                 </div>
                 <div>
                   <h3 className="font-semibold">Manage Subscriptions</h3>
@@ -250,8 +250,8 @@ export const Dashboard = () => {
           <Card className="hover-lift interactive">
             <Link to="/subscriptions/new" className="block p-6">
               <div className="flex items-center space-x-4">
-                <div className="h-12 w-12 rounded-lg bg-success/10 flex items-center justify-center">
-                  <Plus className="h-6 w-6 text-success" />
+                <div className="h-12 w-12 rounded-lg bg-red-500/10 flex items-center justify-center">
+                  <Plus className="h-6 w-6 text-red-500" />
                 </div>
                 <div>
                   <h3 className="font-semibold">Add Subscription</h3>
@@ -266,8 +266,8 @@ export const Dashboard = () => {
           <Card className="hover-lift interactive">
             <Link to="/analytics" className="block p-6">
               <div className="flex items-center space-x-4">
-                <div className="h-12 w-12 rounded-lg bg-warning/10 flex items-center justify-center">
-                  <TrendingUp className="h-6 w-6 text-warning" />
+                <div className="h-12 w-12 rounded-lg bg-red-500/10 flex items-center justify-center">
+                  <TrendingUp className="h-6 w-6 text-red-500" />
                 </div>
                 <div>
                   <h3 className="font-semibold">View Analytics</h3>

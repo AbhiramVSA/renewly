@@ -19,6 +19,7 @@ import { formatDistanceToNow } from 'date-fns';
 import type { SubscriptionFilters, SubscriptionStatus, SubscriptionFrequency } from '@/types';
 import { toast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
+import { Layout } from '@/components/layout/Layout';
 
 const FREQUENCIES: SubscriptionFrequency[] = ['daily', 'weekly', 'monthly', 'yearly'];
 const CURRENCIES = ['USD', 'EUR', 'INR'] as const;
@@ -232,13 +233,15 @@ export const UserSubscriptionsPage: React.FC = () => {
 
   if (error) {
     return (
-      <div className="p-6">
-        <Card>
-          <CardContent className="p-6">
-            <p className="text-red-600">Error loading subscriptions: {error.message}</p>
-          </CardContent>
-        </Card>
-      </div>
+      <Layout>
+        <div className="p-6">
+          <Card>
+            <CardContent className="p-6">
+              <p className="text-red-600">Error loading subscriptions: {error.message}</p>
+            </CardContent>
+          </Card>
+        </div>
+      </Layout>
     );
   }
 
@@ -250,6 +253,7 @@ export const UserSubscriptionsPage: React.FC = () => {
   }, [location.pathname]);
 
   return (
+    <Layout>
     <motion.div className="p-6 space-y-6" initial="hidden" animate="show" variants={container}>
       {/* Simple render guard to prevent white-screen on unexpected nulls */}
       {!user && (
@@ -263,21 +267,21 @@ export const UserSubscriptionsPage: React.FC = () => {
       )}
       <motion.div className="flex justify-between items-center" variants={item}>
         <div className="flex items-center gap-3">
-          <Link to="/">
-            <Button variant="ghost" className="hover:translate-x-[-1px] transition-transform">
-              <ArrowLeft className="mr-2 h-4 w-4" /> Home
+          <Link to="/dashboard">
+            <Button variant="ghost" className="hover:translate-x-[-1px] transition-transform text-red-600 hover:text-red-700">
+              <ArrowLeft className="mr-2 h-4 w-4" /> Dashboard
             </Button>
           </Link>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-purple-500 bg-clip-text text-transparent">My Subscriptions</h1>
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-red-500 to-red-700 bg-clip-text text-transparent">My Subscriptions</h1>
         </div>
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="transition-transform hover:scale-[1.02]">
+            <Button className="transition-transform hover:scale-[1.02] bg-red-500 hover:bg-red-600 text-white">
               <Plus className="mr-2 h-4 w-4" />
               Add Subscription
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
+          <DialogContent className="sm:max-w-[425px] bg-zinc-900 text-zinc-100 border-white/10">
             <DialogHeader>
               <DialogTitle>Add New Subscription</DialogTitle>
               <DialogDescription>
@@ -293,7 +297,7 @@ export const UserSubscriptionsPage: React.FC = () => {
                     <FormItem>
                       <FormLabel>Name</FormLabel>
                       <FormControl>
-                        <Input placeholder="Netflix, Spotify, etc." {...field} />
+                        <Input placeholder="Netflix, Spotify, etc." {...field} className="rounded-2xl bg-zinc-800/70 border-white/10 text-zinc-100 placeholder:text-zinc-400 shadow-inner" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -314,6 +318,7 @@ export const UserSubscriptionsPage: React.FC = () => {
                             placeholder="9.99"
                             {...field}
                             onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                            className="rounded-2xl bg-zinc-800/70 border-white/10 text-zinc-100 placeholder:text-zinc-400 shadow-inner"
                           />
                         </FormControl>
                         <FormMessage />
@@ -328,11 +333,11 @@ export const UserSubscriptionsPage: React.FC = () => {
                         <FormLabel>Currency</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
-                            <SelectTrigger>
+                            <SelectTrigger className="rounded-2xl bg-zinc-800/70 border-white/10 text-zinc-100">
                               <SelectValue placeholder="Select currency" />
                             </SelectTrigger>
                           </FormControl>
-                          <SelectContent>
+                          <SelectContent className="bg-zinc-900 text-zinc-100 border-white/10">
                             {CURRENCIES.map((cur) => (
                               <SelectItem key={cur} value={cur}>{cur}</SelectItem>
                             ))}
@@ -351,11 +356,11 @@ export const UserSubscriptionsPage: React.FC = () => {
                       <FormLabel>Frequency</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
-                          <SelectTrigger>
+                          <SelectTrigger className="rounded-2xl bg-zinc-800/70 border-white/10 text-zinc-100">
                             <SelectValue placeholder="Select frequency" />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent>
+                        <SelectContent className="bg-zinc-900 text-zinc-100 border-white/10">
                           {FREQUENCIES.map((frequency) => (
                             <SelectItem key={frequency} value={frequency}>
                               {frequency.charAt(0).toUpperCase() + frequency.slice(1)}
@@ -375,11 +380,11 @@ export const UserSubscriptionsPage: React.FC = () => {
                       <FormLabel>Category</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
-                          <SelectTrigger>
+                          <SelectTrigger className="rounded-2xl bg-zinc-800/70 border-white/10 text-zinc-100">
                             <SelectValue placeholder="Select category" />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent>
+                        <SelectContent className="bg-zinc-900 text-zinc-100 border-white/10">
                           {CATEGORIES.map((cat) => (
                             <SelectItem key={cat} value={cat}>
                               {cat.charAt(0).toUpperCase() + cat.slice(1)}
@@ -398,7 +403,7 @@ export const UserSubscriptionsPage: React.FC = () => {
                     <FormItem>
                       <FormLabel>Start Date</FormLabel>
                       <FormControl>
-                        <Input type="date" max={todayStr} {...field} />
+                        <Input type="date" max={todayStr} {...field} className="rounded-2xl bg-zinc-800/70 border-white/10 text-zinc-100 shadow-inner" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -411,7 +416,7 @@ export const UserSubscriptionsPage: React.FC = () => {
                     <FormItem>
                       <FormLabel>Payment Method</FormLabel>
                       <FormControl>
-                        <Input placeholder="Credit Card, PayPal, etc." {...field} />
+                        <Input placeholder="Credit Card, PayPal, etc." {...field} className="rounded-2xl bg-zinc-800/70 border-white/10 text-zinc-100 placeholder:text-zinc-400 shadow-inner" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -421,6 +426,7 @@ export const UserSubscriptionsPage: React.FC = () => {
                   <Button 
                     type="submit" 
                     disabled={createMutation.isPending}
+                    className="bg-red-500 hover:bg-red-600 text-white"
                   >
                     {createMutation.isPending ? 'Creating...' : 'Create Subscription'}
                   </Button>
@@ -432,34 +438,34 @@ export const UserSubscriptionsPage: React.FC = () => {
       </motion.div>
 
       {/* Quick stats */}
-      <motion.div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" variants={item}>
-        <Card className="hover:shadow-md transition-shadow">
+  <motion.div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" variants={item}>
+    <Card className="hover:shadow-md transition-shadow">
           <CardContent className="p-4 flex items-center gap-3">
             <Wallet className="h-5 w-5 text-primary" />
             <div>
-              <div className="text-sm text-muted-foreground">Est. Monthly Spend</div>
+      <div className="text-sm text-muted-foreground">Est. Monthly Spend</div>
               <div className="text-lg font-semibold">{stats.estMonthly.toFixed(2)}</div>
             </div>
           </CardContent>
         </Card>
-        <Card className="hover:shadow-md transition-shadow">
+    <Card className="hover:shadow-md transition-shadow">
           <CardContent className="p-4 flex items-center gap-3">
-            <TrendingUp className="h-5 w-5 text-green-500" />
+            <TrendingUp className="h-5 w-5 text-red-500" />
             <div>
-              <div className="text-sm text-muted-foreground">Active</div>
+      <div className="text-sm text-muted-foreground">Active</div>
               <div className="text-lg font-semibold">{stats.active}</div>
             </div>
           </CardContent>
         </Card>
-        <Card className="hover:shadow-md transition-shadow">
+    <Card className="hover:shadow-md transition-shadow">
           <CardContent className="p-4">
-            <div className="text-sm text-muted-foreground">Cancelled</div>
+    <div className="text-sm text-muted-foreground">Cancelled</div>
             <div className="text-lg font-semibold">{stats.cancelled}</div>
           </CardContent>
         </Card>
-        <Card className="hover:shadow-md transition-shadow">
+    <Card className="hover:shadow-md transition-shadow">
           <CardContent className="p-4">
-            <div className="text-sm text-muted-foreground">Total</div>
+    <div className="text-sm text-muted-foreground">Total</div>
             <div className="text-lg font-semibold">{stats.total}</div>
           </CardContent>
         </Card>
@@ -469,7 +475,7 @@ export const UserSubscriptionsPage: React.FC = () => {
       <motion.div variants={item}>
         <Card>
           <CardHeader>
-            <CardTitle>Filters</CardTitle>
+            <CardTitle className="text-red-600">Filters</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
           <div className="flex gap-4">
@@ -479,9 +485,10 @@ export const UserSubscriptionsPage: React.FC = () => {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                className="rounded-2xl bg-white text-zinc-900 placeholder:text-zinc-500 shadow-sm"
               />
             </div>
-            <Button onClick={handleSearch}>Search</Button>
+            <Button onClick={handleSearch} className="bg-red-600 hover:bg-red-700 text-white rounded-2xl">Search</Button>
           </div>
           
           <div className="flex gap-4">
@@ -508,7 +515,7 @@ export const UserSubscriptionsPage: React.FC = () => {
                     variant={filters.status === (s as any) || (!filters.status && s==='all') ? 'default' : 'outline'}
                     size="sm"
                     onClick={() => handleStatusFilter(s === 'all' ? 'all' : (s as any))}
-                    className="rounded-full"
+                    className={`rounded-full ${filters.status === (s as any) || (!filters.status && s==='all') ? 'bg-red-500 hover:bg-red-600 text-white' : 'border-red-300 text-red-600 hover:bg-red-50'}`}
                   >
                     {s.charAt(0).toUpperCase() + s.slice(1)}
                   </Button>
@@ -523,7 +530,7 @@ export const UserSubscriptionsPage: React.FC = () => {
       <motion.div variants={item}>
         <Card>
           <CardHeader>
-            <CardTitle>Your Subscriptions</CardTitle>
+              <CardTitle className="text-red-600">Your Subscriptions</CardTitle>
           </CardHeader>
           <CardContent>
             {isLoading ? (
@@ -584,7 +591,7 @@ export const UserSubscriptionsPage: React.FC = () => {
                           variant="outline"
                           size="sm"
                           onClick={() => handleEdit(subscription)}
-                          className="transition-transform hover:scale-[1.02]"
+                          className="transition-transform hover:scale-[1.02] border-red-300 text-red-600 hover:bg-red-50"
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
@@ -596,12 +603,12 @@ export const UserSubscriptionsPage: React.FC = () => {
                                 variant="outline" 
                                 size="sm"
                                 disabled={cancelMutation.isPending}
-                                className="transition-transform hover:scale-[1.02]"
+                                className="transition-transform hover:scale-[1.02] border-red-300 text-red-600 hover:bg-red-50"
                               >
                                 <Ban className="h-4 w-4" />
                               </Button>
                             </AlertDialogTrigger>
-                            <AlertDialogContent>
+                            <AlertDialogContent className="bg-zinc-900 text-zinc-100 border-white/10">
                               <AlertDialogHeader>
                                 <AlertDialogTitle>Cancel Subscription</AlertDialogTitle>
                                 <AlertDialogDescription>
@@ -626,12 +633,12 @@ export const UserSubscriptionsPage: React.FC = () => {
                               variant="destructive" 
                               size="sm"
                               disabled={deleteMutation.isPending}
-                              className="transition-transform hover:scale-[1.02]"
+                              className="transition-transform hover:scale-[1.02] bg-red-500 hover:bg-red-600 text-white border-0"
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
                           </AlertDialogTrigger>
-                          <AlertDialogContent>
+                          <AlertDialogContent className="bg-zinc-900 text-zinc-100 border-white/10">
                             <AlertDialogHeader>
                               <AlertDialogTitle>Delete Subscription</AlertDialogTitle>
                               <AlertDialogDescription>
@@ -663,7 +670,7 @@ export const UserSubscriptionsPage: React.FC = () => {
                 </div>
                 <div className="text-lg font-semibold">No subscriptions yet</div>
                 <div className="text-sm text-muted-foreground">Get started by adding your first subscription.</div>
-                <Button onClick={() => setIsCreateDialogOpen(true)} className="transition-transform hover:scale-[1.02]">
+                <Button onClick={() => setIsCreateDialogOpen(true)} className="transition-transform hover:scale-[1.02] bg-red-500 hover:bg-red-600 text-white">
                   <Plus className="mr-2 h-4 w-4" /> Add Subscription
                 </Button>
               </div>
@@ -680,6 +687,7 @@ export const UserSubscriptionsPage: React.FC = () => {
                   variant="outline"
                   onClick={() => setFilters(prev => ({ ...prev, page: (prev.page || 1) - 1 }))}
                   disabled={!subscriptionsData.pagination.page || subscriptionsData.pagination.page <= 1}
+                  className="border-red-300 text-red-600 hover:bg-red-50"
                 >
                   Previous
                 </Button>
@@ -687,6 +695,7 @@ export const UserSubscriptionsPage: React.FC = () => {
                   variant="outline"
                   onClick={() => setFilters(prev => ({ ...prev, page: (prev.page || 1) + 1 }))}
                   disabled={subscriptionsData.items.length < (subscriptionsData.pagination.limit || 20)}
+                  className="border-red-300 text-red-600 hover:bg-red-50"
                 >
                   Next
                 </Button>
@@ -831,6 +840,7 @@ export const UserSubscriptionsPage: React.FC = () => {
                 <Button 
                   type="submit" 
                   disabled={updateMutation.isPending}
+                  className="bg-red-500 hover:bg-red-600 text-white"
                 >
                   {updateMutation.isPending ? 'Updating...' : 'Update Subscription'}
                 </Button>
@@ -840,5 +850,6 @@ export const UserSubscriptionsPage: React.FC = () => {
         </DialogContent>
       </Dialog>
   </motion.div>
+  </Layout>
   );
 };

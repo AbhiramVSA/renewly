@@ -45,13 +45,16 @@ export const Navbar = () => {
   const initial = (displayName.charAt(0) || 'U').toUpperCase();
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <nav className="sticky top-0 z-50 w-full border-b border-zinc-300/60 dark:border-white/10 bg-transparent backdrop-blur supports-[backdrop-filter]:bg-transparent">
       <div className="container flex h-16 items-center justify-between">
         {/* Logo */}
         <div className="flex items-center gap-6">
           <Link to="/dashboard" className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-primary text-primary-foreground font-bold text-sm">
-              R
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-zinc-800 text-white font-bold text-sm shadow-[0_6px_18px_rgba(0,0,0,0.35),inset_0_-2px_6px_rgba(255,255,255,0.05)]">
+              <span className="relative">
+                R
+                <span className="absolute -right-1 -top-0.5 h-2 w-2 rounded-full bg-red-500 ring-2 ring-red-500/40" />
+              </span>
             </div>
             <span className="font-semibold text-lg hidden sm:block">Renewly</span>
           </Link>
@@ -66,8 +69,8 @@ export const Navbar = () => {
                   to={item.href}
                   className={`flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
                     isActivePath(item.href)
-                      ? 'bg-primary text-primary-foreground'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                      ? 'bg-red-600 text-white'
+                      : 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-200 dark:text-zinc-400 dark:hover:text-zinc-100 dark:hover:bg-zinc-800'
                   }`}
                 >
                   <Icon className="h-4 w-4" />
@@ -81,11 +84,11 @@ export const Navbar = () => {
         {/* Right side */}
         <div className="flex items-center gap-4">
           {/* Notifications */}
-          <Button variant="ghost" size="icon" className="relative">
+          <Button variant="ghost" size="icon" className="relative text-zinc-700 hover:bg-zinc-200 dark:text-zinc-200 dark:hover:bg-zinc-800">
             <Bell className="h-4 w-4" />
             <Badge 
-              variant="destructive" 
-              className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
+        variant="destructive" 
+        className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs bg-red-600"
             >
               2
             </Badge>
@@ -94,19 +97,19 @@ export const Navbar = () => {
           {/* User Menu */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-9 w-9 rounded-full">
+      <Button variant="ghost" className="relative h-9 w-9 rounded-full hover:bg-zinc-800">
                 <Avatar className="h-9 w-9">
-                  <AvatarFallback className="bg-primary text-primary-foreground">
+      <AvatarFallback className="bg-red-600 text-white">
                     {initial}
                   </AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56" align="end" forceMount>
+    <DropdownMenuContent className="w-56 bg-zinc-900 text-zinc-100 border-white/10" align="end" forceMount>
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">{displayName}</p>
-                  <p className="text-xs leading-none text-muted-foreground">
+      <p className="text-sm font-medium leading-none">{displayName}</p>
+      <p className="text-xs leading-none text-zinc-400">
                     {user.email}
                   </p>
                 </div>

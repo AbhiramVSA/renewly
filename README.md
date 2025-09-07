@@ -1,29 +1,25 @@
-# SubTrack - Subscription Management API
+# Renewly — Subscription Management Platform (API + Frontend)
 
 
-SubTrack is a Node.js and Express-based REST API for managing user subscriptions. It provides endpoints for user authentication, subscription lifecycle (create, update, cancel, delete), RBAC‑protected administration, audit logging, and upcoming renewal tracking. Built with Express, MongoDB (Mongoose), and hardened with layered middleware (JWT auth + Arcjet security), it is designed for extensibility and production readiness.
+Renewly is a subscription management platform with a production‑ready Node.js/Express API and a modern Vite + React + TypeScript frontend. It supports authentication with JWT access/refresh tokens, role‑based access control (RBAC), append‑only audit logging, upcoming renewal tracking, and secure middleware hardening (Arcjet). Designed for extensibility and real‑world deployments.
 
 ## Features
 
-- User authentication and authorization (JWT-based)
-- Create, update, cancel, and delete subscriptions
-- Track upcoming renewals
-- Secure middleware integration (Arcjet, custom auth)
-- Role-Based Access Control (RBAC) (SUPER_ADMIN, ADMIN, MANAGER, USER, READ_ONLY, SERVICE)
-- Append‑only audit logging (login, role changes, subscription mutations)
-- Modular route and controller structure
-- Environment-based configuration
-- Error handling middleware
-- Open source friendly
+- API: JWT auth with access + refresh tokens
+- API: Create, update, cancel, and delete subscriptions
+- API: Upcoming renewals endpoint and rich filtering/pagination
+- API: Secure middleware integration (Arcjet, custom auth)
+- API: Role-Based Access Control (RBAC) — SUPER_ADMIN, ADMIN, MANAGER, USER, READ_ONLY, SERVICE
+- API: Append‑only audit logging (login, role changes, subscription mutations)
+- API: Centralized error handling with consistent JSON shape
+- Frontend: Vite + React + TypeScript, protected routes, axios refresh interceptor
+- Frontend: Modern landing page and subscriptions UI with animations
+- Environment-based configuration and open‑source compliant (MIT)
 
 ## Tech Stack
 
-- **Node.js** (ES Modules)
-- **Express.js**
-- **MongoDB** (Mongoose ODM)
-- **JWT Authentication**
-- **Arcjet** (security & abuse mitigation)
-- **dotenv** (environment management)
+- Backend: Node.js (ESM), Express, MongoDB/Mongoose, JWT, Arcjet, dotenv
+- Frontend: Vite, React, TypeScript, Tailwind CSS, axios, TanStack Query, framer‑motion
 
 ## Getting Started
 
@@ -32,20 +28,40 @@ SubTrack is a Node.js and Express-based REST API for managing user subscriptions
 - Node.js v18+
 - MongoDB Atlas or local MongoDB instance
 
-### Installation
+### Clone
 
 ```bash
-git clone https://github.com/yourusername/subtrack.git
-cd subtrack
+git clone https://github.com/AbhiramVSA/subscription-management-app.git
+cd subscription-management-app
+```
+
+### Project Layout
+```
+backend/
+	app.js
+	config/
+	controllers/
+	database/
+	middleware/
+	models/
+	routes/
+frontend/
+	src/
+	index.html
+	package.json
+```
+
+### Backend Setup
+
+1) Install deps
+```
+cd backend
 npm install
 ```
 
-### Environment Setup
-
-Create a `.env.development.local` file in the root directory:
-
+2) Create `backend/.env.development.local`
 ```
-PORT=8085
+PORT=8001
 DB_URI=your_mongodb_connection_string
 JWT_SECRET=your_jwt_secret
 JWT_EXPIRES_IN=15m
@@ -54,15 +70,30 @@ JWT_REFRESH_EXPIRES_IN=604800000
 ARCJET_KEY=your_arcjet_key
 ```
 
-### Running the App
-
-```bash
+3) Start the API
+```
 npm run dev
 ```
+The API will be available at http://localhost:8001.
 
-The API will be available at `http://localhost:8085`.
+### Frontend Setup
 
-Note: All backend code now resides under `backend/`. A placeholder `frontend/` directory exists for a future UI.
+1) Install deps
+```
+cd ../frontend
+npm install
+```
+
+2) Create `frontend/.env.local`
+```
+VITE_API_BASE_URL=http://localhost:8001
+```
+
+3) Start the app
+```
+npm run dev
+```
+The frontend runs on http://localhost:5173.
 
 ## API Endpoints
 
@@ -96,21 +127,21 @@ Note: All backend code now resides under `backend/`. A placeholder `frontend/` d
 backend/
 	app.js
 	config/
-	constants/
 	controllers/
 	database/
 	middleware/
 	models/
 	routes/
-	scripts/
 	utils/
 frontend/
-	(placeholder for future UI)
+	src/
+	index.html
+	package.json
 ```
 
 ## Authentication & Refresh Tokens
 
-SubTrack implements JWT-based authentication with refresh token support for enhanced security and user experience.
+Renewly implements JWT-based authentication with refresh token support for enhanced security and user experience.
 
 ### Authentication Flow
 
@@ -212,7 +243,7 @@ Response:
 
 ## Example: Create Subscription
 ```
-POST /api/v1/subscription/
+POST /api/v1/subscriptions/
 Authorization: Bearer <TOKEN>
 Content-Type: application/json
 
@@ -259,4 +290,4 @@ If you discover a security vulnerability, please open an issue or contact the ma
 
 ---
 
-**Topics:** subscription management, express api, nodejs backend, mongodb, rest api, authentication, middleware, user management, payments, open source, rbac, audit logging
+**Topics:** renewly, subscription management, express api, nodejs backend, mongodb, rest api, authentication, middleware, user management, payments, open source, rbac, audit logging

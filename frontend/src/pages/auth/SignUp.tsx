@@ -49,31 +49,32 @@ export const SignUp = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-muted/20 to-primary/5 p-4">
+  <div className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-b from-zinc-200 to-zinc-300 dark:from-zinc-900 dark:to-black">
       <div className="w-full max-w-md space-y-8">
         {/* Logo and header */}
         <div className="text-center">
-          <div className="mx-auto h-12 w-12 flex items-center justify-center rounded-xl bg-gradient-primary text-primary-foreground font-bold text-xl mb-4">
-            R
+          <div className="mx-auto h-12 w-12 flex items-center justify-center rounded-2xl bg-zinc-900 text-white font-bold text-xl mb-4 shadow-[0_6px_18px_rgba(0,0,0,0.35),inset_0_-2px_6px_rgba(255,255,255,0.05)]">
+            <span className="relative">
+              R
+              <span className="absolute -right-2 -top-1 h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-red-500/40" />
+            </span>
           </div>
-          <h2 className="text-3xl font-bold tracking-tight">Create account</h2>
-          <p className="text-muted-foreground mt-2">
-            Get started with Renewly today
-          </p>
+          <h2 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">Create account</h2>
+          <p className="text-zinc-500 dark:text-zinc-400 mt-2">Get started with Renewly today</p>
         </div>
 
         {/* Sign up form */}
-        <Card className="bg-card/50 backdrop-blur border-border/50">
+        <Card className="rounded-[22px] bg-zinc-900/95 text-zinc-100 border-white/10 shadow-[0_20px_40px_-20px_rgba(0,0,0,0.6)] backdrop-blur">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl text-center">Sign up</CardTitle>
-            <CardDescription className="text-center">
+            <CardTitle className="text-2xl text-center text-zinc-50">Sign up</CardTitle>
+            <CardDescription className="text-center text-zinc-400">
               Create your account to start managing subscriptions
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="name">Full name</Label>
+                <Label htmlFor="name" className="text-zinc-300">Full name</Label>
                 <div className="relative">
                   <Input
                     id="name"
@@ -81,32 +82,32 @@ export const SignUp = () => {
                     placeholder="John Doe"
                     autoComplete="name"
                     {...register('name')}
-                    className={`pl-10 ${errors.name ? 'border-destructive' : ''}`}
+                    className={`pl-10 rounded-2xl bg-zinc-800/70 border-white/10 text-zinc-100 placeholder:text-zinc-400 shadow-inner focus-visible:ring-red-500/60 focus-visible:border-red-500/40 ${errors.name ? 'border-destructive' : ''}`}
                   />
-                  <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <User className="absolute left-3 top-3 h-4 w-4 text-zinc-400" />
                 </div>
                 {errors.name && (
-                  <p className="text-sm text-destructive">{errors.name.message}</p>
+                  <p className="text-sm text-red-400">{errors.name.message}</p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email" className="text-zinc-300">Email</Label>
                 <Input
                   id="email"
                   type="email"
                   placeholder="name@company.com"
                   autoComplete="email"
                   {...register('email')}
-                  className={errors.email ? 'border-destructive' : ''}
+                  className={`rounded-2xl bg-zinc-800/70 border-white/10 text-zinc-100 placeholder:text-zinc-400 shadow-inner focus-visible:ring-red-500/60 focus-visible:border-red-500/40 ${errors.email ? 'border-destructive' : ''}`}
                 />
                 {errors.email && (
-                  <p className="text-sm text-destructive">{errors.email.message}</p>
+                  <p className="text-sm text-red-400">{errors.email.message}</p>
                 )}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password" className="text-zinc-300">Password</Label>
                 <div className="relative">
                   <Input
                     id="password"
@@ -114,24 +115,24 @@ export const SignUp = () => {
                     placeholder="Create a strong password"
                     autoComplete="new-password"
                     {...register('password')}
-                    className={`pr-10 ${errors.password ? 'border-destructive' : ''}`}
+                    className={`pr-10 rounded-2xl bg-zinc-800/70 border-white/10 text-zinc-100 placeholder:text-zinc-400 shadow-inner focus-visible:ring-red-500/60 focus-visible:border-red-500/40 ${errors.password ? 'border-destructive' : ''}`}
                   />
                   <Button
                     type="button"
                     variant="ghost"
                     size="icon"
-                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent text-zinc-400"
                     onClick={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? (
-                      <EyeOff className="h-4 w-4 text-muted-foreground" />
+                      <EyeOff className="h-4 w-4" />
                     ) : (
-                      <Eye className="h-4 w-4 text-muted-foreground" />
+                      <Eye className="h-4 w-4" />
                     )}
                   </Button>
                 </div>
                 {errors.password && (
-                  <p className="text-sm text-destructive">{errors.password.message}</p>
+                  <p className="text-sm text-red-400">{errors.password.message}</p>
                 )}
                 <p className="text-xs text-muted-foreground">
                   Must contain at least 8 characters with uppercase, lowercase, and number
@@ -140,7 +141,7 @@ export const SignUp = () => {
 
               <Button 
                 type="submit" 
-                className="w-full bg-gradient-primary hover:opacity-90 transition-opacity"
+                className="w-full rounded-2xl bg-red-600 hover:bg-red-700 text-white shadow-[0_10px_24px_-8px_rgba(239,68,68,0.7)]"
                 disabled={signUpMutation.isPending}
               >
                 {signUpMutation.isPending ? (
@@ -155,10 +156,10 @@ export const SignUp = () => {
             </form>
 
             <div className="mt-6 text-center text-sm">
-              <span className="text-muted-foreground">Already have an account? </span>
+              <span className="text-zinc-400">Already have an account? </span>
               <Link 
                 to="/auth/sign-in" 
-                className="font-medium text-primary hover:text-primary/90 transition-colors"
+                className="font-medium text-red-400 hover:text-red-300 transition-colors"
               >
                 Sign in
               </Link>
@@ -167,13 +168,13 @@ export const SignUp = () => {
         </Card>
 
         {/* Footer */}
-        <p className="text-center text-xs text-muted-foreground">
+        <p className="text-center text-xs text-zinc-500 dark:text-zinc-400">
           By creating an account, you agree to our{' '}
-          <Link to="/terms" className="underline hover:text-foreground">
+          <Link to="/terms" className="underline hover:text-zinc-900 dark:hover:text-zinc-100">
             Terms of Service
           </Link>{' '}
           and{' '}
-          <Link to="/privacy" className="underline hover:text-foreground">
+          <Link to="/privacy" className="underline hover:text-zinc-900 dark:hover:text-zinc-100">
             Privacy Policy
           </Link>
         </p>

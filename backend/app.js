@@ -19,23 +19,29 @@ import arcjetMiddleware from "./middleware/arcjet.middleware.js";
 const app = express();
 
 // CORS configuration - allow requests from frontend
-const corsOptions = {
-  origin: [
-    'http://localhost:8080',  // Frontend development server
-    'http://localhost:3000',  // Common React dev port
-    'http://localhost:5173',  // Vite default port
-  ],
-  credentials: true, // Allow cookies and auth headers
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: [
-    'Content-Type', 
-    'Authorization', 
-    'X-Requested-With',
-    'Accept'
-  ]
-};
+const defaultOrigins = [
+    'http://localhost:8080',
+    'http://localhost:3000',
+    'http://localhost:5173',
+];
+const envOrigins = (process.env.ALLOWED_ORIGINS || '')
+    .split(',')
+    .map(o => o.trim())
+    .filter(Boolean);
+const allowList = [...new Set([...defaultOrigins, ...envOrigins])];
 
-app.use(cors(corsOptions));
+app.use(cors({
+    origin: function(origin, callback) {
+        // Allow requests with no origin (like mobile apps, curl) or if origin in allowList
+        if (!origin || allowList.includes(origin)) {
+            return callback(null, true);
+        }
+        return callback(new Error('Not allowed by CORS'));
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept']
+}));
 
 // Body parsing middleware
 // Handles JSON payloads with reasonable size limits
@@ -84,10 +90,10 @@ app.get('/', (req, res) => {
 });
 
 /**
- * Start the Express server and initialize database connection
- * Graceful startup with proper error handling
+ * Start the Express server locally. On Vercel (serverless), export the app
+ * and connect to the database without starting a listener.
  */
-if (process.env.NODE_ENV !== 'test') {
+if (process.env.NODE_ENV !== 'test' && !process.env.VERCEL) {
     app.listen(PORT, () => {
         console.log(`🚀 SubTrack API server started successfully`);
         console.log(`📍 Server running on: http://localhost:${PORT}`);
@@ -97,6 +103,9 @@ if (process.env.NODE_ENV !== 'test') {
         // Initialize database connection after server starts
         connectToDatabase();
     });
+} else if (process.env.VERCEL) {
+    // In serverless environment, ensure DB is initialized on cold start
+    connectToDatabase();
 }
 
 // Graceful shutdown handling

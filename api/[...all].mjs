@@ -2,7 +2,7 @@
 import app from '../backend/app.js';
 
 export const config = {
-  runtime: 'nodejs20.x',
+  runtime: 'nodejs',
 };
 
 export default app;

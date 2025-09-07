@@ -16,7 +16,9 @@
   "dev": "nodemon backend/app.js",
   "cleanup-tokens": "node backend/scripts/cleanup-tokens.js",
   "test": "NODE_ENV=test cross-env NODE_OPTIONS=--experimental-vm-modules jest --runInBand",
-  "test:watch": "npm run test -- --watch"
+  "test:watch": "npm run test -- --watch",
+  "postinstall": "npm --prefix frontend install",
+  "build": "npm --prefix frontend run build"
   },
   "dependencies": {
     "@arcjet/inspect": "^1.0.0-beta.10",

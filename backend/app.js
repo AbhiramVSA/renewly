@@ -3,7 +3,7 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 
 // Configuration and database
-import { PORT } from './config/env.js';
+import { PORT, NODE_ENV } from './config/env.js';
 import connectToDatabase from "./database/mongodb.js";
 
 // Route handlers
@@ -35,18 +35,30 @@ if (process.env.VERCEL_URL) {
 }
 const allowList = [...new Set([...defaultOrigins, ...envOrigins])];
 
-app.use(cors({
-    origin: function(origin, callback) {
-        // Allow requests with no origin (like mobile apps, curl) or if origin in allowList
-        if (!origin || allowList.includes(origin)) {
-            return callback(null, true);
-        }
-        return callback(new Error('Not allowed by CORS'));
-    },
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept']
-}));
+const isDev = NODE_ENV !== 'production';
+if (isDev) {
+    // In development, reflect the request origin to allow any local host/IP and port
+    app.use(cors({
+        origin: true,
+        credentials: true,
+        methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+        allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept']
+    }));
+} else {
+    // In production, restrict to allowList (ALLOWED_ORIGINS + VERCEL_URL)
+    app.use(cors({
+        origin: function(origin, callback) {
+            // Allow requests with no origin (like mobile apps, curl) or if origin in allowList
+            if (!origin || allowList.includes(origin)) {
+                return callback(null, true);
+            }
+            return callback(new Error('Not allowed by CORS'));
+        },
+        credentials: true,
+        methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+        allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept']
+    }));
+}
 
 // Body parsing middleware
 // Handles JSON payloads with reasonable size limits

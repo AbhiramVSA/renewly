@@ -5,4 +5,7 @@ export const config = {
   runtime: 'nodejs',
 };
 
-export default app;
+// Export a handler wrapper for Express to ensure Vercel invokes it correctly
+export default function handler(req, res) {
+  return app(req, res);
+}

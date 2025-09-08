@@ -1,8 +1,8 @@
 import aj from '../config/arcjet.js'
 
 const arcjetMiddleware = async (req, res, next) => {
-    // Skip Arcjet protection in test and development environments
-    if (process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'development') {
+    // Skip Arcjet protection unless explicitly enabled
+    if (process.env.ARCJET_ENV !== 'LIVE') {
         return next();
     }
     

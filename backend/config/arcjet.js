@@ -1,12 +1,15 @@
 import arcjet, { shield, detectBot, tokenBucket } from "@arcjet/node";
-import { ARCJET_KEY, NODE_ENV } from "./env.js";
+import { ARCJET_KEY, ARCJET_ENV } from "./env.js";
+
+// Determine mode from environment; default to DRY_RUN to relax enforcement.
+const MODE = ARCJET_ENV === 'LIVE' ? 'LIVE' : 'DRY_RUN';
 
 const aj = arcjet({
   key: ARCJET_KEY,
   rules: [
-    shield({ mode: NODE_ENV === 'production' ? "LIVE" : "DRY_RUN" }),
+    shield({ mode: MODE }),
     detectBot({
-      mode: NODE_ENV === 'production' ? "LIVE" : "DRY_RUN", 
+      mode: MODE, 
       allow: [
         "CATEGORY:SEARCH_ENGINE", // Google, Bing, etc
         //"CATEGORY:MONITOR", // Uptime monitoring services
@@ -14,11 +17,11 @@ const aj = arcjet({
       ],
     }),
     tokenBucket({
-      mode: NODE_ENV === 'production' ? "LIVE" : "DRY_RUN",
-      // More generous limits for development
-      refillRate: NODE_ENV === 'production' ? 10 : 50, // 50 tokens per interval in dev
-      interval: NODE_ENV === 'production' ? 60 : 10,   // Every 10 seconds in dev
-      capacity: NODE_ENV === 'production' ? 20 : 100,  // 100 token capacity in dev
+      mode: MODE,
+      // More generous limits when relaxed
+      refillRate: MODE === 'LIVE' ? 10 : 50,
+      interval: MODE === 'LIVE' ? 60 : 10,
+      capacity: MODE === 'LIVE' ? 20 : 100,
     }),
   ],
 });

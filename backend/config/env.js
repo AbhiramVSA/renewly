@@ -1,11 +1,6 @@
-import { config } from 'dotenv';
-import path from 'path';
+import {config} from 'dotenv';
 
-const envName = process.env.NODE_ENV || 'development';
-// Try loading env from current working dir (repo root case)
-config({ path: path.resolve(process.cwd(), `.env.${envName}.local`) });
-// Also try parent dir (when running from backend/ as cwd)
-config({ path: path.resolve(process.cwd(), `../.env.${envName}.local`) });
+config( {path: `.env.${process.env.NODE_ENV || 'development'}.local` });
 
 export const {
     PORT,

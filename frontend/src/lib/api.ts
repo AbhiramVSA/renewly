@@ -1,8 +1,9 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { toast } from '@/hooks/use-toast';
 
-// Create axios instance without a baseURL so all requests use same-origin relative paths
+// Create axios instance; prefer VITE_API_BASE_URL for split deployments, fallback to same-origin
 const api: AxiosInstance = axios.create({
+  baseURL: (import.meta as any)?.env?.VITE_API_BASE_URL || '',
   timeout: 30000,
   headers: { 'Content-Type': 'application/json' },
 });
@@ -57,6 +58,10 @@ export const clearTokens = () => {
 // Request interceptor to add auth header
 api.interceptors.request.use(
   (config) => {
+    // If no global baseURL, let relative URLs hit same-origin
+    if (!api.defaults.baseURL && typeof config.url === 'string' && config.url.startsWith('/')) {
+      config.baseURL = '';
+    }
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
     }

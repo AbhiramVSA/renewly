@@ -12,8 +12,10 @@
     "url": "https://github.com/yourusername/subtrack.git"
   },
   "scripts": {
-  "start": "node backend/app.js",
-  "dev": "nodemon backend/app.js",
+    "start": "node backend/app.js",
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:server": "nodemon backend/app.js",
+    "dev:client": "npm --prefix frontend run dev",
     "cleanup-tokens": "node backend/scripts/cleanup-tokens.js",
     "test": "NODE_ENV=test cross-env NODE_OPTIONS=--experimental-vm-modules jest --runInBand",
     "test:watch": "npm run test -- --watch",
@@ -35,6 +37,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.34.0",
+    "concurrently": "^8.2.2",
     "cross-env": "^7.0.3",
     "eslint": "^9.34.0",
     "globals": "^16.3.0",

@@ -27,7 +27,9 @@ const defaultOrigins = [
 const envOrigins = (process.env.ALLOWED_ORIGINS || '')
     .split(',')
     .map(o => o.trim())
-    .filter(Boolean);
+    .filter(Boolean)
+    // Normalize: remove trailing slashes to match browser Origin header format
+    .map(o => o.replace(/\/+$/, ''));
 // On Vercel, also allow the deployment URL automatically if available
 if (process.env.VERCEL_URL) {
     const vercelOrigin = `https://${process.env.VERCEL_URL}`;
@@ -58,6 +60,7 @@ if (isDev) {
         methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
         allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept']
     }));
+    console.log('[CORS] Production allowList:', allowList);
 }
 
 // Body parsing middleware

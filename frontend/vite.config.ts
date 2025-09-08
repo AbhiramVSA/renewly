@@ -16,6 +16,8 @@ export default defineConfig(({ mode }) => ({
       },
     },
   },
+  // Allow exposing custom ENV_ prefixed variables (ENV_BASE_URL)
+  envPrefix: ["VITE_", "ENV_"],
   plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
   resolve: {
     alias: {

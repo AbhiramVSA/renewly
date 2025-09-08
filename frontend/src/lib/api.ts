@@ -1,22 +1,47 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { toast } from '@/hooks/use-toast';
 
-// Create axios instance; prefer build-time VITE_API_BASE_URL, then runtime window.__API_BASE_URL, else same-origin
-const buildTimeBase = (import.meta as any)?.env?.VITE_API_BASE_URL;
-// @ts-ignore - allow optional global override set in index.html: <script>window.__API_BASE_URL='https://...'</script>
+// Create axios instance; preference order:
+// 1. Build-time VITE_API_BASE_URL
+// 2. Runtime window.__API_BASE_URL (injected script)
+// 3. <meta name="api-base" content="...">
+// 4. Same-origin (empty base)
+// Support new ENV_BASE_URL (preferred) with fallback to legacy VITE_API_BASE_URL
+// @ts-ignore
+const buildTimeBase = (import.meta as any)?.env?.ENV_BASE_URL || (import.meta as any)?.env?.VITE_API_BASE_URL;
+// @ts-ignore
 const runtimeBase = typeof window !== 'undefined' ? (window as any).__API_BASE_URL : '';
-const resolvedBase = buildTimeBase || runtimeBase || '';
-if (!buildTimeBase && runtimeBase && console) {
-  console.info('[api] Using runtime window.__API_BASE_URL fallback:', runtimeBase);
+const metaBase = typeof document !== 'undefined'
+  ? (document.querySelector('meta[name="api-base"]')?.getAttribute('content') || '')
+  : '';
+const resolvedBase = buildTimeBase || runtimeBase || metaBase || '';
+
+if (buildTimeBase) {
+  console.info('[api] Build-time API base (ENV_BASE_URL|VITE_API_BASE_URL):', buildTimeBase);
+} else if (runtimeBase) {
+  console.info('[api] Using runtime window.__API_BASE_URL:', runtimeBase);
+} else if (metaBase) {
+  console.info('[api] Using <meta name="api-base"> content:', metaBase);
+} else {
+  console.warn('[api] No API base URL set (VITE_API_BASE_URL, window.__API_BASE_URL, or <meta name="api-base"). Using same-origin.');
 }
-if (!resolvedBase) {
-  console.warn('[api] No API base URL set (VITE_API_BASE_URL or window.__API_BASE_URL). Requests will use same-origin.');
-}
+
 const api: AxiosInstance = axios.create({
   baseURL: resolvedBase,
   timeout: 30000,
   headers: { 'Content-Type': 'application/json' },
 });
+
+// Allow runtime override post-load; useful if build-time var missing
+if (typeof window !== 'undefined') {
+  // @ts-ignore
+  (window as any).setApiBase = (url: string) => {
+    // @ts-ignore
+    (window as any).__API_BASE_URL = url;
+    api.defaults.baseURL = url;
+    console.info('[api] Runtime API base updated to', url);
+  };
+}
 
 // Token management
 let accessToken: string | null = null;

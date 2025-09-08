@@ -3,7 +3,8 @@ import { toast } from '@/hooks/use-toast';
 
 // Create axios instance
 const api: AxiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8001',
+  // Prefer explicit env base URL; otherwise default to same-origin in browser, and localhost in dev tools
+  baseURL: import.meta.env.VITE_API_BASE_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:8001'),
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json',

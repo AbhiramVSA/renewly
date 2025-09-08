@@ -28,6 +28,11 @@ const envOrigins = (process.env.ALLOWED_ORIGINS || '')
     .split(',')
     .map(o => o.trim())
     .filter(Boolean);
+// On Vercel, also allow the deployment URL automatically if available
+if (process.env.VERCEL_URL) {
+    const vercelOrigin = `https://${process.env.VERCEL_URL}`;
+    envOrigins.push(vercelOrigin);
+}
 const allowList = [...new Set([...defaultOrigins, ...envOrigins])];
 
 app.use(cors({

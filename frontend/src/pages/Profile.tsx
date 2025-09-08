@@ -22,7 +22,7 @@ const Profile = () => {
   const handleUpdateProfile = async () => {
     try {
       setSavingProfile(true);
-      const res = await api.put(`/api/v1/users/${user._id}`, { name, email });
+  const res = await api.put(`/api/v1/user/${user._id}`, { name, email });
       if (res.data?.success) {
         toast({ title: 'Profile updated', description: 'Your details were saved.' });
         // Update local storage for immediate reflect
@@ -44,7 +44,7 @@ const Profile = () => {
   const handleChangePassword = async () => {
     try {
       setChangingPassword(true);
-      const res = await api.patch(`/api/v1/users/${user._id}/password`, { currentPassword, newPassword });
+  const res = await api.patch(`/api/v1/user/${user._id}/password`, { currentPassword, newPassword });
       if (res.data?.success) {
         toast({ title: 'Password changed', description: 'Please sign in again on other devices.' });
         setCurrentPassword('');

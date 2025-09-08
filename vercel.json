@@ -4,8 +4,7 @@
   "installCommand": "npm install && npm --prefix frontend install",
   "outputDirectory": "frontend/dist",
   "routes": [
-    { "src": "/api/(.*)", "dest": "/api/$1" },
-    { "handle": "filesystem" },
-    { "src": "/.*", "dest": "/index.html" }
+  { "handle": "filesystem" },
+  { "src": "/(.*)", "dest": "/index.html" }
   ]
 }

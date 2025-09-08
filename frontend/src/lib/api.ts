@@ -57,11 +57,6 @@ export const clearTokens = () => {
 // Request interceptor to add auth header
 api.interceptors.request.use(
   (config) => {
-    // In development, allow overriding API origin without hardcoding baseURL
-    const maybeBase = (import.meta as any)?.env?.VITE_API_BASE_URL;
-    if (maybeBase && typeof config.url === 'string' && config.url.startsWith('/')) {
-      config.baseURL = maybeBase;
-    }
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
     }

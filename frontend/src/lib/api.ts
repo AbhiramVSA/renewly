@@ -1,14 +1,10 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { toast } from '@/hooks/use-toast';
 
-// Create axios instance
+// Create axios instance without a baseURL so all requests use same-origin relative paths
 const api: AxiosInstance = axios.create({
-  // Prefer explicit env base URL; otherwise default to same-origin in browser, and localhost in dev tools
-  baseURL: import.meta.env.VITE_API_BASE_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:8001'),
   timeout: 30000,
-  headers: {
-    'Content-Type': 'application/json',
-  },
+  headers: { 'Content-Type': 'application/json' },
 });
 
 // Token management
@@ -61,6 +57,11 @@ export const clearTokens = () => {
 // Request interceptor to add auth header
 api.interceptors.request.use(
   (config) => {
+    // In development, allow overriding API origin without hardcoding baseURL
+    const maybeBase = (import.meta as any)?.env?.VITE_API_BASE_URL;
+    if (maybeBase && typeof config.url === 'string' && config.url.startsWith('/')) {
+      config.baseURL = maybeBase;
+    }
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
     }
@@ -109,10 +110,9 @@ api.interceptors.response.use(
           throw new Error('No refresh token available');
         }
 
-  const response = await axios.post(
-          `${api.defaults.baseURL}/api/v1/auth/refresh`,
-          { refreshToken: currentRefreshToken },
-          { headers: { 'Content-Type': 'application/json' } }
+  const response = await api.post(
+          '/api/v1/auth/refresh',
+          { refreshToken: currentRefreshToken }
         );
 
         if (!response.data.success) {

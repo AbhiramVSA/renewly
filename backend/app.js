@@ -74,6 +74,8 @@ app.use(arcjetMiddleware);
 
 // API route handlers with versioning
 // All API endpoints are prefixed with /api/v1 for future compatibility
+// Health check
+app.get('/api/v1/ping', (req, res) => res.json({ ok: true }));
 app.use('/api/v1/auth', authRouter);        // Authentication and session management
 app.use('/api/v1/user', userRouter);        // User management and profiles
 app.use('/api/v1/subscriptions', subscriptionRouter);  // Subscription CRUD operations

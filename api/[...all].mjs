@@ -11,9 +11,12 @@ export default function handler(req, res) {
   // Ensure Express sees paths starting with '/api/...'.
   try {
     const originalUrl = req.url || '';
+  const originalMethod = req.method || 'UNKNOWN';
     if (originalUrl && !originalUrl.startsWith('/api/')) {
       req.url = `/api${originalUrl.startsWith('/') ? '' : '/'}${originalUrl}`;
     }
+  // Log mapping for debugging on Vercel functions
+  console.log(`[fn] ${originalMethod} ${originalUrl} -> ${req.url}`);
   } catch (_) {
     // no-op; continue with original URL if mutation fails
   }

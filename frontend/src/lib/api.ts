@@ -1,9 +1,19 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { toast } from '@/hooks/use-toast';
 
-// Create axios instance; prefer VITE_API_BASE_URL for split deployments, fallback to same-origin
+// Create axios instance; prefer build-time VITE_API_BASE_URL, then runtime window.__API_BASE_URL, else same-origin
+const buildTimeBase = (import.meta as any)?.env?.VITE_API_BASE_URL;
+// @ts-ignore - allow optional global override set in index.html: <script>window.__API_BASE_URL='https://...'</script>
+const runtimeBase = typeof window !== 'undefined' ? (window as any).__API_BASE_URL : '';
+const resolvedBase = buildTimeBase || runtimeBase || '';
+if (!buildTimeBase && runtimeBase && console) {
+  console.info('[api] Using runtime window.__API_BASE_URL fallback:', runtimeBase);
+}
+if (!resolvedBase) {
+  console.warn('[api] No API base URL set (VITE_API_BASE_URL or window.__API_BASE_URL). Requests will use same-origin.');
+}
 const api: AxiosInstance = axios.create({
-  baseURL: (import.meta as any)?.env?.VITE_API_BASE_URL || '',
+  baseURL: resolvedBase,
   timeout: 30000,
   headers: { 'Content-Type': 'application/json' },
 });

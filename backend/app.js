@@ -3,8 +3,11 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 
 // Configuration and database
-import { PORT, NODE_ENV } from './config/env.js';
+import { getServerConfig, NODE_ENV } from './config/env.js';
 import connectToDatabase from "./database/mongodb.js";
+
+// Get server configuration based on environment
+const serverConfig = getServerConfig();
 
 // Route handlers
 import userRouter from './routes/user.routes.js';
@@ -77,8 +80,106 @@ app.use(arcjetMiddleware);
 
 // API route handlers with versioning
 // All API endpoints are prefixed with /api/v1 for future compatibility
-// Health check
-app.get('/api/v1/ping', (req, res) => res.json({ ok: true }));
+
+// Health check endpoints
+import mongoose from 'mongoose';
+
+// Simple ping endpoint for basic availability check
+app.get('/api/v1/ping', (req, res) => {
+    res.json({ 
+        status: 'ok',
+        timestamp: new Date().toISOString(),
+        message: 'SubTrack API is running'
+    });
+});
+
+// Comprehensive health check endpoint
+app.get('/api/v1/health', async (req, res) => {
+    const healthCheck = {
+        status: 'healthy',
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime(),
+        environment: NODE_ENV,
+        version: '1.0.0',
+        deployment: {
+            type: serverConfig.isServerless ? 'serverless' : 'traditional',
+            platform: serverConfig.isServerless ? 'vercel' : 'local'
+        },
+        services: {
+            api: {
+                status: 'healthy',
+                ...(serverConfig.port ? { port: serverConfig.port } : {}),
+                baseUrl: serverConfig.baseUrl
+            },
+            database: {
+                status: 'unknown',
+                connected: false,
+                readyState: mongoose.connection.readyState
+            }
+        },
+        system: {
+            nodeVersion: process.version,
+            platform: process.platform,
+            memory: {
+                used: Math.round(process.memoryUsage().heapUsed / 1024 / 1024 * 100) / 100,
+                total: Math.round(process.memoryUsage().heapTotal / 1024 / 1024 * 100) / 100
+            }
+        }
+    };
+
+    try {
+        // Check database connectivity
+        const dbState = mongoose.connection.readyState;
+        if (dbState === 1) {
+            // Connected - perform a simple query to verify database is responding
+            await mongoose.connection.db.admin().ping();
+            healthCheck.services.database.status = 'healthy';
+            healthCheck.services.database.connected = true;
+        } else if (dbState === 2) {
+            healthCheck.services.database.status = 'connecting';
+        } else if (dbState === 0) {
+            healthCheck.services.database.status = 'disconnected';
+        } else {
+            healthCheck.services.database.status = 'disconnecting';
+        }
+    } catch (error) {
+        healthCheck.services.database.status = 'unhealthy';
+        healthCheck.services.database.error = error.message;
+        healthCheck.status = 'degraded';
+    }
+
+    // Set HTTP status based on overall health
+    const httpStatus = healthCheck.status === 'healthy' ? 200 : 
+                      healthCheck.status === 'degraded' ? 200 : 503;
+
+    res.status(httpStatus).json(healthCheck);
+});
+
+// Ready endpoint for deployment readiness checks
+app.get('/api/v1/ready', async (req, res) => {
+    try {
+        // Check if database is connected and responding
+        if (mongoose.connection.readyState !== 1) {
+            throw new Error('Database not connected');
+        }
+        
+        await mongoose.connection.db.admin().ping();
+        
+        res.json({
+            status: 'ready',
+            timestamp: new Date().toISOString(),
+            message: 'SubTrack API is ready to accept requests'
+        });
+    } catch (error) {
+        res.status(503).json({
+            status: 'not ready',
+            timestamp: new Date().toISOString(),
+            error: error.message,
+            message: 'SubTrack API is not ready to accept requests'
+        });
+    }
+});
+
 app.use('/api/v1/auth', authRouter);        // Authentication and session management
 app.use('/api/v1/user', userRouter);        // User management and profiles
 app.use('/api/v1/subscriptions', subscriptionRouter);  // Subscription CRUD operations
@@ -112,21 +213,29 @@ app.get('/', (req, res) => {
 });
 
 /**
- * Start the Express server locally. On Vercel (serverless), export the app
- * and connect to the database without starting a listener.
+ * Server startup logic that adapts to deployment environment
+ * - Local development: Start HTTP server on specified port
+ * - Serverless (Vercel): Just initialize database connection
+ * - Test environment: Skip server startup
  */
-if (process.env.NODE_ENV !== 'test' && !process.env.VERCEL) {
-    app.listen(PORT, () => {
+if (serverConfig.shouldListen) {
+    app.listen(serverConfig.port, () => {
         console.log(`🚀 SubTrack API server started successfully`);
-        console.log(`📍 Server running on: http://localhost:${PORT}`);
-        console.log(`📚 API Documentation: http://localhost:${PORT}/`);
+        console.log(`📍 Server running on: ${serverConfig.baseUrl}`);
+        console.log(`📚 API Documentation: ${serverConfig.baseUrl}/`);
         console.log(`🔒 Security: Arcjet protection enabled`);
+        console.log(`⚙️  Environment: ${NODE_ENV}`);
 
         // Initialize database connection after server starts
         connectToDatabase();
     });
-} else if (process.env.VERCEL) {
-    // In serverless environment, ensure DB is initialized on cold start
+} else {
+    // In serverless or test environment, just ensure DB is initialized
+    if (serverConfig.isServerless) {
+        console.log(`🚀 SubTrack API initialized for serverless deployment`);
+        console.log(`☁️  Platform: Vercel Functions`);
+        console.log(`⚙️  Environment: ${NODE_ENV}`);
+    }
     connectToDatabase();
 }
 

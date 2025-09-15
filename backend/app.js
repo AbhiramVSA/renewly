@@ -75,6 +75,21 @@ app.use(express.urlencoded({ extended: false }));
 // Cookie parsing for session management
 app.use(cookieParser());
 
+// Database connection middleware - ensure DB is connected before handling requests
+app.use(async (req, res, next) => {
+    try {
+        await connectToDatabase();
+        next();
+    } catch (error) {
+        console.error('Database connection failed:', error.message);
+        res.status(503).json({
+            success: false,
+            message: 'Database connection unavailable',
+            error: error.message
+        });
+    }
+});
+
 // Security middleware - rate limiting and abuse protection
 // Must be applied before route handlers for effective protection
 app.use(arcjetMiddleware);
@@ -216,7 +231,7 @@ app.get('/', (req, res) => {
 /**
  * Server startup logic that adapts to deployment environment
  * - Local development: Start HTTP server on specified port
- * - Serverless (Vercel): Just initialize database connection
+ * - Serverless (Vercel): Database connection handled per-request
  * - Test environment: Skip server startup
  */
 if (serverConfig.shouldListen) {
@@ -226,18 +241,22 @@ if (serverConfig.shouldListen) {
         console.log(`📚 API Documentation: ${serverConfig.baseUrl}/`);
         console.log(`🔒 Security: Arcjet protection enabled`);
         console.log(`⚙️  Environment: ${NODE_ENV}`);
+        console.log(`🔌 Database: Connection established per-request`);
 
-        // Initialize database connection after server starts
-        connectToDatabase();
+        // Pre-warm database connection for local development
+        connectToDatabase().catch(err => {
+            console.warn('⚠️  Initial database connection failed:', err.message);
+            console.log('🔄 Database will connect on first request');
+        });
     });
 } else {
-    // In serverless or test environment, just ensure DB is initialized
+    // In serverless environment, database connection is handled per-request via middleware
     if (serverConfig.isServerless) {
         console.log(`🚀 SubTrack API initialized for serverless deployment`);
         console.log(`☁️  Platform: Vercel Functions`);
         console.log(`⚙️  Environment: ${NODE_ENV}`);
+        console.log(`🔌 Database: Connection established per-request`);
     }
-    connectToDatabase();
 }
 
 // Graceful shutdown handling

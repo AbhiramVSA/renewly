@@ -1,25 +1,51 @@
-# Renewly — Subscription Management Platform (API + Frontend)
+# Renewly — Subscription Management Platform
 
+**SubTrack** is a full-stack subscription management platform built with modern web technologies. The project consists of a robust Node.js/Express API backend and a responsive React/TypeScript frontend, designed for independent deployment and scalability.
 
-Renewly is a subscription management platform with a production‑ready Node.js/Express API and a modern Vite + React + TypeScript frontend. It supports authentication with JWT access/refresh tokens, role‑based access control (RBAC), append‑only audit logging, upcoming renewal tracking, and secure middleware hardening (Arcjet). Designed for extensibility and real‑world deployments.
+## 🚀 Features
 
-## Features
+### Backend API
+- **Authentication**: JWT-based auth with access & refresh tokens
+- **RBAC**: Role-Based Access Control with 6 distinct roles (SUPER_ADMIN, ADMIN, MANAGER, USER, READ_ONLY, SERVICE)
+- **Subscription Management**: Full CRUD operations for subscription tracking
+- **Audit Logging**: Append-only security logging for all critical actions
+- **Security**: Arcjet integration for rate limiting and abuse protection
+- **RESTful API**: Clean, consistent API design with comprehensive error handling
 
-- API: JWT auth with access + refresh tokens
-- API: Create, update, cancel, and delete subscriptions
-- API: Upcoming renewals endpoint and rich filtering/pagination
-- API: Secure middleware integration (Arcjet, custom auth)
-- API: Role-Based Access Control (RBAC) — SUPER_ADMIN, ADMIN, MANAGER, USER, READ_ONLY, SERVICE
-- API: Append‑only audit logging (login, role changes, subscription mutations)
-- API: Centralized error handling with consistent JSON shape
-- Frontend: Vite + React + TypeScript, protected routes, axios refresh interceptor
-- Frontend: Modern landing page and subscriptions UI with animations
-- Environment-based configuration and open‑source compliant (MIT)
+### Frontend App
+- **Modern Stack**: Vite + React 18 + TypeScript + Tailwind CSS
+- **UI Components**: Shadcn/UI component library with Radix UI primitives
+- **State Management**: TanStack Query for server state, React Hook Form for forms
+- **Authentication**: Protected routes with automatic token refresh
+- **Responsive Design**: Mobile-first design with smooth animations (Framer Motion)
+- **Developer Experience**: Hot reload, TypeScript support, ESLint configuration
 
-## Tech Stack
+### Architecture
+- **Independent Deployment**: Separate backend and frontend projects for flexible scaling
+- **Environment Configuration**: Comprehensive environment variable management
+- **Cross-Origin Support**: CORS configuration for separate domain deployment
+- **Development Workflow**: Independent development servers with proxy configuration
 
-- Backend: Node.js (ESM), Express, MongoDB/Mongoose, JWT, Arcjet, dotenv
-- Frontend: Vite, React, TypeScript, Tailwind CSS, axios, TanStack Query, framer‑motion
+## 🛠 Tech Stack
+
+### Backend
+- **Runtime**: Node.js 18+ (ESM modules)
+- **Framework**: Express.js
+- **Database**: MongoDB with Mongoose ODM
+- **Authentication**: JWT with refresh token rotation
+- **Security**: Arcjet, bcryptjs, CORS
+- **Development**: Nodemon, ESLint
+
+### Frontend
+- **Build Tool**: Vite
+- **Framework**: React 18 with TypeScript
+- **Styling**: Tailwind CSS
+- **UI Library**: Shadcn/UI + Radix UI
+- **HTTP Client**: Axios with interceptors
+- **State Management**: TanStack Query (React Query)
+- **Forms**: React Hook Form with Zod validation
+- **Animation**: Framer Motion
+- **Development**: ESLint, PostCSS
 
 ## Getting Started
 

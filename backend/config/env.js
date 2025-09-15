@@ -1,6 +1,8 @@
 import {config} from 'dotenv';
+import path from 'path';
 
-config( {path: `.env.${process.env.NODE_ENV || 'development'}.local` });
+// Load env file from current backend directory
+config( {path: path.resolve(process.cwd(), `.env.${process.env.NODE_ENV || 'development'}.local`) });
 
 export const {
     PORT,

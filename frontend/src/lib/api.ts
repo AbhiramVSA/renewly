@@ -8,7 +8,10 @@ import { toast } from '@/hooks/use-toast';
 // 4. Same-origin (empty base)
 // Support new ENV_BASE_URL (preferred) with fallback to legacy VITE_API_BASE_URL
 // @ts-ignore
-const buildTimeBase = (import.meta as any)?.env?.ENV_BASE_URL || (import.meta as any)?.env?.VITE_API_BASE_URL;
+const envBaseUrl = import.meta.env?.ENV_BASE_URL;
+// @ts-ignore  
+const viteApiBaseUrl = import.meta.env?.VITE_API_BASE_URL;
+const buildTimeBase = envBaseUrl || viteApiBaseUrl;
 // @ts-ignore
 const runtimeBase = typeof window !== 'undefined' ? (window as any).__API_BASE_URL : '';
 const metaBase = typeof document !== 'undefined'
@@ -16,14 +19,24 @@ const metaBase = typeof document !== 'undefined'
   : '';
 const resolvedBase = buildTimeBase || runtimeBase || metaBase || '';
 
+// Enhanced debugging
+console.log('[api] Environment variables debug:');
+console.log('  import.meta.env:', import.meta.env);
+console.log('  ENV_BASE_URL:', envBaseUrl);
+console.log('  VITE_API_BASE_URL:', viteApiBaseUrl);
+console.log('  buildTimeBase:', buildTimeBase);
+console.log('  runtimeBase:', runtimeBase);
+console.log('  metaBase:', metaBase);
+console.log('  resolvedBase:', resolvedBase);
+
 if (buildTimeBase) {
-  console.info('[api] Build-time API base (ENV_BASE_URL|VITE_API_BASE_URL):', buildTimeBase);
+  console.info('[api] ✅ Using build-time API base:', buildTimeBase);
 } else if (runtimeBase) {
   console.info('[api] Using runtime window.__API_BASE_URL:', runtimeBase);
 } else if (metaBase) {
   console.info('[api] Using <meta name="api-base"> content:', metaBase);
 } else {
-  console.warn('[api] No API base URL set (VITE_API_BASE_URL, window.__API_BASE_URL, or <meta name="api-base"). Using same-origin.');
+  console.warn('[api] ❌ No API base URL set. Using same-origin.');
 }
 
 const api: AxiosInstance = axios.create({
@@ -31,6 +44,8 @@ const api: AxiosInstance = axios.create({
   timeout: 30000,
   headers: { 'Content-Type': 'application/json' },
 });
+
+console.log('[api] Axios instance created with baseURL:', api.defaults.baseURL);
 
 // Allow runtime override post-load; useful if build-time var missing
 if (typeof window !== 'undefined') {

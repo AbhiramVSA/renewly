@@ -47,79 +47,142 @@
 - **Animation**: Framer Motion
 - **Development**: ESLint, PostCSS
 
-## Getting Started
+## 📁 Project Structure
+
+This project uses a **monorepo structure** with independent backend and frontend applications:
+
+```
+subscription-management-app/
+├── backend/                     # Express.js API Server
+│   ├── app.js                   # Main application entry point
+│   ├── package.json             # Backend dependencies & scripts
+│   ├── .env.development.local   # Backend environment variables
+│   ├── config/
+│   │   └── env.js              # Environment configuration
+│   ├── constants/              # Application constants
+│   ├── controllers/            # Route controllers
+│   │   ├── auth.controller.js  # Authentication logic
+│   │   ├── subscription.controller.js
+│   │   └── user.controller.js
+│   ├── database/
+│   │   └── mongodb.js          # Database connection
+│   ├── middleware/             # Custom middleware
+│   │   ├── auth.middleware.js  # JWT authentication
+│   │   ├── error.middleware.js # Error handling
+│   │   └── rbac.middleware.js  # Role-based access control
+│   ├── models/                 # Mongoose schemas
+│   │   ├── subscription.model.js
+│   │   ├── user.model.js
+│   │   └── auditLog.model.js
+│   ├── routes/                 # API routes
+│   │   ├── auth.routes.js
+│   │   ├── subscription.routes.js
+│   │   └── user.routes.js
+│   ├── scripts/               # Utility scripts
+│   └── utils/                 # Helper functions
+├── frontend/                   # React Application
+│   ├── index.html             # HTML entry point
+│   ├── package.json           # Frontend dependencies & scripts
+│   ├── .env.development.local # Frontend environment variables
+│   ├── vite.config.ts         # Vite configuration
+│   ├── tailwind.config.ts     # Tailwind CSS configuration
+│   ├── components.json        # Shadcn/UI configuration
+│   ├── src/
+│   │   ├── main.tsx           # React entry point
+│   │   ├── App.tsx            # Main app component
+│   │   ├── components/        # Reusable UI components
+│   │   ├── pages/             # Page components
+│   │   ├── lib/               # Utilities & API client
+│   │   ├── hooks/             # Custom React hooks
+│   │   ├── store/             # State management
+│   │   └── types/             # TypeScript type definitions
+│   └── public/                # Static assets
+├── api/                       # Vercel serverless functions
+├── package.json               # Root package.json (development scripts)
+├── vercel.json                # Vercel deployment configuration
+└── README.md                  # This file
+```
+
+## 🚀 Getting Started
 
 ### Prerequisites
 
-- Node.js v18+
-- MongoDB Atlas or local MongoDB instance
+- **Node.js** v18 or higher
+- **MongoDB** (Atlas or local instance)
+- **Git** for version control
 
-### Clone
+### 1. Clone Repository
 
 ```bash
 git clone https://github.com/AbhiramVSA/subscription-management-app.git
 cd subscription-management-app
 ```
 
-### Project Layout
-```
-backend/
-	app.js
-	config/
-	controllers/
-	database/
-	middleware/
-	models/
-	routes/
-frontend/
-	src/
-	index.html
-	package.json
-```
+### 2. Backend Setup
 
-### Backend Setup
+Navigate to the backend directory and install dependencies:
 
-1) Install deps
-```
+```bash
 cd backend
 npm install
 ```
 
-2) Create `backend/.env.development.local`
-```
+Create environment configuration file:
+
+```bash
+# Create backend/.env.development.local
 PORT=8001
-DB_URI=your_mongodb_connection_string
-JWT_SECRET=your_jwt_secret
+NODE_ENV=development
+DB_URI=mongodb+srv://username:password@cluster.mongodb.net/subtrack
+JWT_SECRET=your_super_secure_jwt_secret_key_here
 JWT_EXPIRES_IN=15m
-JWT_REFRESH_SECRET=your_refresh_secret
+JWT_REFRESH_SECRET=your_super_secure_refresh_secret_key_here
 JWT_REFRESH_EXPIRES_IN=604800000
-ARCJET_KEY=your_arcjet_key
+ARCJET_KEY=your_arcjet_api_key_here
+ALLOWED_ORIGINS=http://localhost:8080,http://localhost:5173
 ```
 
-3) Start the API
-```
+Start the backend development server:
+
+```bash
 npm run dev
 ```
-The API will be available at http://localhost:8001.
 
-### Frontend Setup
+✅ **Backend API available at**: `http://localhost:8001`
 
-1) Install deps
-```
-cd ../frontend
+### 3. Frontend Setup
+
+Open a new terminal and navigate to the frontend directory:
+
+```bash
+cd frontend
 npm install
 ```
 
-2) Create `frontend/.env.local`
-```
-VITE_API_BASE_URL=http://localhost:8001
+Create frontend environment configuration:
+
+```bash
+# Create frontend/.env.development.local
+ENV_BASE_URL=http://localhost:8001
 ```
 
-3) Start the app
-```
+Start the frontend development server:
+
+```bash
 npm run dev
 ```
-The frontend runs on http://localhost:5173.
+
+✅ **Frontend application available at**: `http://localhost:8080`
+
+### 4. Development Workflow
+
+Both applications can be run independently:
+
+- **Backend only**: `cd backend && npm run dev`
+- **Frontend only**: `cd frontend && npm run dev`
+- **Both from root**: `npm run dev` (uses concurrently)
+
+The frontend is configured to proxy API requests to the backend during development.
 
 ## API Endpoints
 
@@ -148,21 +211,48 @@ The frontend runs on http://localhost:5173.
 - `PUT /api/v1/subscriptions/:id/cancel` — Cancel a subscription (owner or elevated)
 - `GET /api/v1/subscriptions/upcoming-renewals` — Get upcoming renewals
 
-## Project Structure (Key Files)
+## 🔧 Development Configuration
+
+### Environment Variables
+
+#### Backend (`.env.development.local`)
+```env
+PORT=8001                          # API server port
+NODE_ENV=development               # Environment mode
+DB_URI=mongodb://...              # MongoDB connection string
+JWT_SECRET=your_jwt_secret        # JWT signing secret
+JWT_EXPIRES_IN=15m                # Access token expiry
+JWT_REFRESH_SECRET=refresh_secret # Refresh token secret
+JWT_REFRESH_EXPIRES_IN=604800000  # Refresh token expiry (7 days)
+ARCJET_KEY=your_arcjet_key        # Arcjet security key
+ALLOWED_ORIGINS=http://localhost:8080 # CORS origins
 ```
-backend/
-	app.js
-	config/
-	controllers/
-	database/
-	middleware/
-	models/
-	routes/
-	utils/
-frontend/
-	src/
-	index.html
-	package.json
+
+#### Frontend (`.env.development.local`)
+```env
+ENV_BASE_URL=http://localhost:8001 # Backend API URL
+```
+
+### Build & Deployment
+
+The project supports multiple deployment strategies:
+
+1. **Monorepo Deployment** - Deploy both apps together
+2. **Separate Deployment** - Deploy backend and frontend independently
+3. **Serverless Deployment** - Backend as Vercel functions, frontend as static site
+
+#### Production Environment Variables
+
+**Backend Production**:
+```env
+NODE_ENV=production
+DB_URI=mongodb+srv://...          # Production MongoDB
+ALLOWED_ORIGINS=https://yourdomain.com
+```
+
+**Frontend Production**:
+```env
+ENV_BASE_URL=https://api.yourdomain.com
 ```
 
 ## Authentication & Refresh Tokens
@@ -284,23 +374,85 @@ Content-Type: application/json
 }
 ```
 
-## Roadmap / Ideas
-- Pagination + advanced filtering for subscriptions.
-- Expose audit log query endpoint (secured).
-- Soft delete & restore workflows.
-- Email / webhook notifications before renewals.
-- API key support for SERVICE role.
-- Rate limit tiers per role.
+## 🗺 Roadmap
 
-## Contributing
+### Planned Features
+- [ ] **Advanced Filtering**: Pagination and complex subscription filtering
+- [ ] **Audit Dashboard**: Query interface for audit logs (admin only)
+- [ ] **Soft Delete**: Recoverable deletion with restore workflows
+- [ ] **Notifications**: Email/webhook alerts for upcoming renewals
+- [ ] **API Keys**: Service account authentication for third-party integrations
+- [ ] **Enhanced RBAC**: Rate limiting tiers per role
+- [ ] **Analytics**: Subscription spending insights and trends
+- [ ] **Mobile App**: React Native companion app
+- [ ] **Backup/Export**: Data export functionality
+- [ ] **Multi-tenant**: Support for multiple organizations
 
-Contributions are welcome! Please open issues or submit pull requests for improvements and bug fixes.
+### Current Version
+- ✅ JWT Authentication with refresh tokens
+- ✅ Role-based access control (6 roles)
+- ✅ Full subscription CRUD operations
+- ✅ Audit logging for security events
+- ✅ Modern React frontend with TypeScript
+- ✅ Independent deployment architecture
+- ✅ Comprehensive error handling
+- ✅ Security middleware integration
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/your-feature`)
-3. Commit your changes (`git commit -am 'Add new feature'`)
-4. Push to the branch (`git push origin feature/your-feature`)
-5. Open a pull request
+## 📊 Available Scripts
+
+### Root Directory
+```bash
+npm run dev              # Start both backend and frontend
+npm run dev:server       # Start backend only
+npm run dev:client       # Start frontend only
+npm run build           # Build frontend for production
+npm run test            # Run test suite
+npm run cleanup-tokens  # Clean expired refresh tokens
+```
+
+### Backend Directory (`cd backend`)
+```bash
+npm run dev    # Start backend with nodemon
+npm start      # Start backend in production mode
+```
+
+### Frontend Directory (`cd frontend`)
+```bash
+npm run dev      # Start development server (port 8080)
+npm run build    # Build for production
+npm run preview  # Preview production build
+npm run lint     # Run ESLint
+```
+
+## 🤝 Contributing
+
+We welcome contributions! Here's how to get started:
+
+### Development Setup
+1. **Fork** the repository on GitHub
+2. **Clone** your fork locally
+3. **Install** dependencies for both backend and frontend
+4. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
+5. **Make** your changes and add tests
+6. **Commit** your changes (`git commit -m 'Add amazing feature'`)
+7. **Push** to your branch (`git push origin feature/amazing-feature`)
+8. **Open** a Pull Request
+
+### Code Standards
+- **TypeScript** for type safety (frontend)
+- **ESM modules** throughout the project
+- **ESLint** for code consistency
+- **Conventional commits** for clear history
+- **Comprehensive error handling**
+- **Security-first** approach
+
+### Areas for Contribution
+- 🐛 **Bug fixes** and performance improvements
+- 📝 **Documentation** enhancements
+- 🧪 **Test coverage** expansion
+- 🎨 **UI/UX** improvements
+- 🔒 **Security** enhancements
+- 🚀 **New features** from the roadmap
 
 ## License
 
@@ -316,4 +468,24 @@ If you discover a security vulnerability, please open an issue or contact the ma
 
 ---
 
-**Topics:** renewly, subscription management, express api, nodejs backend, mongodb, rest api, authentication, middleware, user management, payments, open source, rbac, audit logging
+## 📋 Project Specifications
+
+### Technical Requirements
+- **Node.js**: v18+ (ESM modules required)
+- **MongoDB**: v4.4+ (Atlas recommended)
+- **Memory**: 512MB+ for development
+- **Storage**: 100MB+ for dependencies
+
+### Browser Support
+- **Modern browsers**: Chrome 90+, Firefox 88+, Safari 14+, Edge 90+
+- **Mobile**: iOS Safari 14+, Chrome Mobile 90+
+
+### Performance Targets
+- **API Response Time**: <200ms average
+- **Frontend Load Time**: <3s first contentful paint
+- **Bundle Size**: <1MB total JavaScript
+- **Lighthouse Score**: 90+ performance rating
+
+---
+
+**Keywords:** subscription management, react typescript, express api, nodejs backend, mongodb, jwt authentication, rbac, audit logging, vite, tailwind css, shadcn ui, vercel deployment, modern web development

@@ -24,6 +24,19 @@ import { Layout } from '@/components/layout/Layout';
 const FREQUENCIES: SubscriptionFrequency[] = ['daily', 'weekly', 'monthly', 'yearly'];
 const CURRENCIES = ['USD', 'EUR', 'INR'] as const;
 const CATEGORIES = ['sports','news','entertainment','technology','education','lifestyle','finance','political','other'] as const;
+const convertToUSD = async (amount: number, fromCurrency: string) => {
+  if (fromCurrency === 'USD') return amount;
+  try {
+    const res = await fetch(
+      `https://v6.exchangerate-api.com/v6/1c20ba25b21993f73b9df2cf/pair/${fromCurrency}/USD/${amount}`
+    );
+    const data = await res.json();
+    return data?.conversion_result ?? amount;
+  } catch (err) {
+    console.error('Currency conversion failed:', err);
+    return amount; // fallback: no conversion
+  }
+};
 
 const subscriptionSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -79,17 +92,34 @@ export const UserSubscriptionsPage: React.FC = () => {
   };
 
   // Derived stats
+
+  // Derived stats
   const stats = useMemo(() => {
     const items = subscriptionsData?.items ?? [];
     const total = items.length;
     const active = items.filter(s => s.status === 'active').length;
     const cancelled = items.filter(s => s.status === 'cancelled').length;
-    const estMonthly = items.reduce((sum, s) => {
-      const p = typeof s.price === 'number' ? s.price : Number(s.price || 0);
-      const mult = s.frequency === 'daily' ? 30 : s.frequency === 'weekly' ? 52/12 : s.frequency === 'monthly' ? 1 : s.frequency === 'yearly' ? 1/12 : 0;
-      return sum + p * mult;
-    }, 0);
-    return { total, active, cancelled, estMonthly };
+    return { total, active, cancelled };
+  }, [subscriptionsData]);
+
+  const [estMonthlyUSD, setEstMonthlyUSD] = useState(0);
+  useEffect(() => {
+    const fetchConverted = async () => {
+      const items = subscriptionsData?.items ?? [];
+      let total = 0;
+      for (const s of items) {
+        const price = typeof s.price === 'number' ? s.price : Number(s.price || 0);
+        const mult = s.frequency === 'daily' ? 30 
+                   : s.frequency === 'weekly' ? 52/12 
+                   : s.frequency === 'monthly' ? 1 
+                   : s.frequency === 'yearly' ? 1/12 
+                   : 0;
+        const priceUSD = await convertToUSD(price, s.currency || 'USD');
+        total += priceUSD * mult;
+      }
+      setEstMonthlyUSD(total);
+    };
+    fetchConverted();
   }, [subscriptionsData]);
 
   const handleSearch = () => {
@@ -320,29 +350,57 @@ export const UserSubscriptionsPage: React.FC = () => {
                       </FormItem>
                     )}
                   />
-                  <FormField
-                    control={form.control}
-                    name="currency"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Currency</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger className="rounded-2xl bg-zinc-800/70 border-white/10 text-zinc-100">
-                              <SelectValue placeholder="Select currency" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent className="bg-zinc-900 text-zinc-100 border-white/10">
-                            {CURRENCIES.map((cur) => (
-                              <SelectItem key={cur} value={cur}>{cur}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+                  </div>
+<FormField
+  control={form.control}
+  name="currency"
+  render={({ field }) => (
+    <FormItem>
+      <FormLabel>Currency</FormLabel>
+      <Select
+        onValueChange={async (newCurrency) => {
+          const currentCurrency = form.getValues("currency") || "INR"; // fallback INR
+          const priceValue = form.getValues("price");
+          const amount = typeof priceValue === 'string' ? parseFloat(priceValue) : priceValue;
+
+          if (!isNaN(amount) && currentCurrency !== newCurrency) {
+            try {
+              const res = await fetch(
+                `https://v6.exchangerate-api.com/v6/1c20ba25b21993f73b9df2cf/pair/${currentCurrency}/${newCurrency}/${amount}`
+              );
+              const data = await res.json();
+
+              if (data?.conversion_result !== undefined) {
+                // Convert API result to number before setting
+                form.setValue("price", Number(data.conversion_result.toFixed(2)));
+              }
+            } catch (err) {
+              console.error("Exchange rate fetch failed:", err);
+            }
+          }
+
+          field.onChange(newCurrency); // update currency
+        }}
+        value={field.value}
+      >
+        <FormControl>
+          <SelectTrigger className="rounded-2xl bg-zinc-800/70 border-white/10 text-zinc-100">
+            <SelectValue placeholder="Select currency" />
+          </SelectTrigger>
+        </FormControl>
+        <SelectContent className="bg-zinc-900 text-zinc-100 border-white/10">
+          {CURRENCIES.map((cur) => (
+            <SelectItem key={cur} value={cur}>
+              {cur}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      <FormMessage />
+    </FormItem>
+  )}
+/>
+
                 <FormField
                   control={form.control}
                   name="frequency"
@@ -436,12 +494,13 @@ export const UserSubscriptionsPage: React.FC = () => {
   <motion.div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" variants={item}>
     <Card className="hover:shadow-md transition-shadow">
           <CardContent className="p-4 flex items-center gap-3">
-            <Wallet className="h-5 w-5 text-primary" />
-            <div>
-      <div className="text-sm text-muted-foreground">Est. Monthly Spend</div>
-              <div className="text-lg font-semibold">{stats.estMonthly.toFixed(2)}</div>
-            </div>
-          </CardContent>
+  <Wallet className="h-5 w-5 text-primary" />
+  <div>
+    <div className="text-sm text-muted-foreground">Est. Monthly Spend (USD)</div>
+    <div className="text-lg font-semibold">${estMonthlyUSD.toFixed(2)}</div>
+  </div>
+</CardContent>
+
         </Card>
     <Card className="hover:shadow-md transition-shadow">
           <CardContent className="p-4 flex items-center gap-3">
@@ -748,27 +807,54 @@ export const UserSubscriptionsPage: React.FC = () => {
                   )}
                 />
                 <FormField
-                  control={form.control}
-                  name="currency"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Currency</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select currency" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {CURRENCIES.map((cur) => (
-                            <SelectItem key={cur} value={cur}>{cur}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+  control={form.control}
+  name="currency"
+  render={({ field }) => (
+    <FormItem>
+      <FormLabel>Currency</FormLabel>
+      <Select
+        onValueChange={async (newCurrency) => {
+          const currentCurrency = form.getValues("currency") || "INR";
+          const priceValue = form.getValues("price");
+          const amount = typeof priceValue === 'string' ? parseFloat(priceValue) : priceValue;
+
+          if (!isNaN(amount) && currentCurrency !== newCurrency) {
+            try {
+              const res = await fetch(
+                `https://v6.exchangerate-api.com/v6/1c20ba25b21993f73b9df2cf/pair/${currentCurrency}/${newCurrency}/${amount}`
+              );
+              const data = await res.json();
+
+              if (data?.conversion_result !== undefined) {
+                form.setValue("price", Number(data.conversion_result.toFixed(2)));
+              }
+            } catch (err) {
+              console.error("Exchange rate fetch failed:", err);
+            }
+          }
+
+          field.onChange(newCurrency);
+        }}
+        value={field.value}
+      >
+        <FormControl>
+          <SelectTrigger className="rounded-2xl bg-zinc-800/70 border-white/10 text-zinc-100">
+            <SelectValue placeholder="Select currency" />
+          </SelectTrigger>
+        </FormControl>
+        <SelectContent className="bg-zinc-900 text-zinc-100 border-white/10">
+          {CURRENCIES.map((cur) => (
+            <SelectItem key={cur} value={cur}>
+              {cur}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      <FormMessage />
+    </FormItem>
+  )}
+/>
+
               </div>
               <FormField
                 control={form.control}

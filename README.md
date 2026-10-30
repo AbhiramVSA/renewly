@@ -2,6 +2,14 @@
 
 **SubTrack** is a full-stack subscription management platform built with modern web technologies. The project consists of a robust Node.js/Express API backend and a responsive React/TypeScript frontend, designed for independent deployment and scalability.
 
+<p align="center">
+  <a href="#getting-started">Setup</a> ·
+  <a href="#api-endpoints">API</a> ·
+  <a href="#development-configuration">Configuration</a> ·
+  <a href="#available-scripts">Scripts</a> ·
+  <a href="#license">License</a>
+</p>
+
 ## 🚀 Features
 
 ### Backend API
@@ -103,7 +111,7 @@ subscription-management-app/
 └── README.md                  # This file
 ```
 
-## 🚀 Getting Started
+## Getting started
 
 ### Prerequisites
 
@@ -211,7 +219,7 @@ The frontend is configured to proxy API requests to the backend during developme
 - `PUT /api/v1/subscriptions/:id/cancel` — Cancel a subscription (owner or elevated)
 - `GET /api/v1/subscriptions/upcoming-renewals` — Get upcoming renewals
 
-## 🔧 Development Configuration
+## Development configuration
 
 ### Environment Variables
 
@@ -398,7 +406,7 @@ Content-Type: application/json
 - ✅ Comprehensive error handling
 - ✅ Security middleware integration
 
-## 📊 Available Scripts
+## Available scripts
 
 ### Root Directory
 ```bash

@@ -122,8 +122,8 @@ subscription-management-app/
 ### 1. Clone Repository
 
 ```bash
-git clone https://github.com/AbhiramVSA/subscription-management-app.git
-cd subscription-management-app
+git clone https://github.com/AbhiramVSA/renewly.git
+cd renewly
 ```
 
 ### 2. Backend Setup
@@ -414,9 +414,13 @@ npm run dev              # Start both backend and frontend
 npm run dev:server       # Start backend only
 npm run dev:client       # Start frontend only
 npm run build           # Build frontend for production
-npm run test            # Run test suite
+npm run test            # Run the configured Jest command
 npm run cleanup-tokens  # Clean expired refresh tokens
 ```
+
+The root `npm run dev` starts both apps from the repository root. The backend loads its environment file from the current working directory. For this combined command, place backend settings in the root `.env.development.local` or export them before you run it. The backend-only command above runs from `backend/` and reads `backend/.env.development.local`.
+
+The root package defines a Jest test command, but this checkout has no tracked test files.
 
 ### Backend Directory (`cd backend`)
 ```bash

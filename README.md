@@ -1,6 +1,10 @@
-# Renewly — Subscription Management Platform
+<p align="center">
+  <img src="assets/renewly-mark.png" alt="Subscription renewal calendar mark" width="200" />
+</p>
 
-**SubTrack** is a full-stack subscription management platform built with modern web technologies. The project consists of a robust Node.js/Express API backend and a responsive React/TypeScript frontend, designed for independent deployment and scalability.
+<h1 align="center">Renewly — Subscription Management Platform</h1>
+
+<p align="center"><strong>SubTrack</strong> is a full-stack subscription management platform built with modern web technologies. The project consists of a robust Node.js/Express API backend and a responsive React/TypeScript frontend, designed for independent deployment and scalability.</p>
 
 <p align="center">
   <a href="#getting-started">Setup</a> ·

@@ -1,6 +1,18 @@
-# Renewly — Subscription Management Platform
+<p align="center">
+  <img src="assets/renewly-mark.png" alt="Subscription renewal calendar mark" width="200" />
+</p>
 
-**SubTrack** is a full-stack subscription management platform built with modern web technologies. The project consists of a robust Node.js/Express API backend and a responsive React/TypeScript frontend, designed for independent deployment and scalability.
+<h1 align="center">Renewly — Subscription Management Platform</h1>
+
+<p align="center"><strong>SubTrack</strong> is a full-stack subscription management platform built with modern web technologies. The project consists of a robust Node.js/Express API backend and a responsive React/TypeScript frontend, designed for independent deployment and scalability.</p>
+
+<p align="center">
+  <a href="#getting-started">Setup</a> ·
+  <a href="#api-endpoints">API</a> ·
+  <a href="#development-configuration">Configuration</a> ·
+  <a href="#available-scripts">Scripts</a> ·
+  <a href="#license">License</a>
+</p>
 
 ## 🚀 Features
 
@@ -103,7 +115,7 @@ subscription-management-app/
 └── README.md                  # This file
 ```
 
-## 🚀 Getting Started
+## Getting started
 
 ### Prerequisites
 
@@ -114,8 +126,8 @@ subscription-management-app/
 ### 1. Clone Repository
 
 ```bash
-git clone https://github.com/AbhiramVSA/subscription-management-app.git
-cd subscription-management-app
+git clone https://github.com/AbhiramVSA/renewly.git
+cd renewly
 ```
 
 ### 2. Backend Setup
@@ -211,7 +223,7 @@ The frontend is configured to proxy API requests to the backend during developme
 - `PUT /api/v1/subscriptions/:id/cancel` — Cancel a subscription (owner or elevated)
 - `GET /api/v1/subscriptions/upcoming-renewals` — Get upcoming renewals
 
-## 🔧 Development Configuration
+## Development configuration
 
 ### Environment Variables
 
@@ -398,7 +410,7 @@ Content-Type: application/json
 - ✅ Comprehensive error handling
 - ✅ Security middleware integration
 
-## 📊 Available Scripts
+## Available scripts
 
 ### Root Directory
 ```bash
@@ -406,9 +418,13 @@ npm run dev              # Start both backend and frontend
 npm run dev:server       # Start backend only
 npm run dev:client       # Start frontend only
 npm run build           # Build frontend for production
-npm run test            # Run test suite
+npm run test            # Run the configured Jest command
 npm run cleanup-tokens  # Clean expired refresh tokens
 ```
+
+The root `npm run dev` starts both apps from the repository root. The backend loads its environment file from the current working directory. For this combined command, place backend settings in the root `.env.development.local` or export them before you run it. The backend-only command above runs from `backend/` and reads `backend/.env.development.local`.
+
+The root package defines a Jest test command, but this checkout has no tracked test files.
 
 ### Backend Directory (`cd backend`)
 ```bash
